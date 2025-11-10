@@ -7,9 +7,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, SelectField, RadioField
-from wtforms.validators import DataRequired, Email, EqualTo, Length, InputRequired
+from wtforms.validators import DataRequired, Email, EqualTo, Length, InputRequired, Optional
+from wtforms.fields import DateField # Import para fechas de plazo
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta # Import para lógica de fechas
 import click
 
 # --- Configuración de la App ---
@@ -71,12 +72,17 @@ class User(db.Model, UserMixin):
     metas_personales = db.Column(db.Text)
     metas_profesionales = db.Column(db.Text)
 
+    # Configuración del Asistente de IA
+    asistente_persona = db.Column(db.String(100), default='Amigable')
+
     # Relaciones
     areas = db.relationship('AreaVida', backref='autor', lazy=True, cascade="all, delete-orphan")
     misiones = db.relationship('Mision', backref='autor', lazy=True, cascade="all, delete-orphan")
     habitos = db.relationship('Habito', backref='autor', lazy=True, cascade="all, delete-orphan")
     logros_compartidos = db.relationship('LogroCompartido', backref='autor', lazy=True, cascade="all, delete-orphan")
     tienda_items = db.relationship('TiendaItem', backref='autor', lazy=True, cascade="all, delete-orphan")
+    mensajes_asistente = db.relationship('MensajeAsistente', backref='autor', lazy=True, cascade="all, delete-orphan")
+
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -100,6 +106,7 @@ class Mision(db.Model):
     recompensa_xp = db.Column(db.Integer, default=50)
     recompensa_pesos = db.Column(db.Integer, default=5000) # Recompensa en COP
     completada = db.Column(db.Boolean, default=False)
+    plazo = db.Column(db.DateTime, nullable=True) # Fecha de plazo
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     area_id = db.Column(db.Integer, db.ForeignKey('area_vida.id'), nullable=True) # Ligada a un área
     pendientes = db.relationship('Pendiente', backref='mision', lazy=True, cascade="all, delete-orphan")
@@ -135,6 +142,21 @@ class LogroCompartido(db.Model):
     texto = db.Column(db.String(500), nullable=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+# Nuevos Modelos para el Asistente de IA
+class MensajeAsistente(db.Model):
+    __tablename__ = 'mensaje_asistente'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    contenido = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    leido = db.Column(db.Boolean, default=False)
+
+class AsistentePersonalidad(db.Model):
+    __tablename__ = 'asistente_personalidad'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), unique=True, nullable=False)
+    prompt_descripcion = db.Column(db.Text, nullable=False) # El prompt que se le da a Gemini
 
 # === Formularios (Flask-WTF) ===
 
@@ -187,6 +209,7 @@ class AreaVidaForm(FlaskForm):
 class MisionForm(FlaskForm):
     area_id = SelectField('Área de Vida', coerce=int, validators=[InputRequired()])
     titulo = StringField('Título de la Misión', validators=[DataRequired(), Length(max=200)])
+    plazo = DateField('Fecha de Plazo (Opcional)', validators=[Optional()])
     recompensa_xp = StringField('Recompensa XP', default=50, validators=[DataRequired()])
     recompensa_pesos = StringField('Recompensa (COP)', default=5000, validators=[DataRequired()])
     submit = SubmitField('Crear Misión')
@@ -202,6 +225,10 @@ class HabitoForm(FlaskForm):
 class ShareLogroForm(FlaskForm):
     texto = TextAreaField('Comparte tu logro...', validators=[DataRequired(), Length(min=1, max=500)], render_kw={"placeholder": "Ej. ¡Subí a Nivel 5!"})
     submit = SubmitField('Publicar')
+
+class ConfiguracionForm(FlaskForm):
+    asistente_persona = SelectField('Personalidad del Asistente', coerce=str, validators=[DataRequired()])
+    submit = SubmitField('Guardar Cambios')
 
 
 # === Rutas de Autenticación y Registro con IA ===
@@ -364,6 +391,7 @@ def generar_setup_ia():
                 recompensa_pesos=mision.get('recompensa_pesos', 5000),
                 autor=current_user,
                 area_id=area_id
+                # No establecemos 'plazo' desde la IA por simplicidad
             )
             db.session.add(nueva_mision)
             db.session.flush() # Obtener el ID de la misión
@@ -428,7 +456,9 @@ def index():
         title='Panel Central',
         stats=stats,
         xp_percent=xp_percent,
-        areas=areas
+        areas=areas,
+        datetime=datetime, # Pasamos el módulo datetime al template
+        timedelta=timedelta # Pasamos timedelta para comparar fechas
     )
 
 @app.route('/areas', methods=['GET', 'POST'])
@@ -469,6 +499,7 @@ def misiones():
             area_id=form.area_id.data,
             recompensa_xp=int(form.recompensa_xp.data),
             recompensa_pesos=int(form.recompensa_pesos.data),
+            plazo=form.plazo.data,
             autor=current_user
         )
         db.session.add(nueva_mision)
@@ -476,12 +507,14 @@ def misiones():
         flash('¡Misión creada!', 'success')
         return redirect(url_for('misiones'))
         
-    lista_misiones = Mision.query.filter_by(user_id=current_user.id).order_by(Mision.completada.asc()).all()
+    lista_misiones = Mision.query.filter_by(user_id=current_user.id).order_by(Mision.completada.asc(), Mision.plazo.asc()).all()
     return render_template(
         'misiones.html',
         title='Misiones',
         misiones=lista_misiones,
-        form=form
+        form=form,
+        datetime=datetime, # Pasamos datetime al template
+        timedelta=timedelta # Pasamos timedelta al template
     )
 
 @app.route('/habitos', methods=['GET', 'POST'])
@@ -578,6 +611,30 @@ def feed():
         logros=logros_publicos
     )
 
+@app.route('/configuracion', methods=['GET', 'POST'])
+@login_required
+def configuracion():
+    """Página para configurar la personalidad del Asistente de IA."""
+    form = ConfiguracionForm()
+    # Llenamos las opciones del SelectField desde la base de datos
+    form.asistente_persona.choices = [(p.nombre, p.nombre) for p in AsistentePersonalidad.query.all()]
+    
+    if form.validate_on_submit():
+        current_user.asistente_persona = form.asistente_persona.data
+        db.session.commit()
+        flash('¡Personalidad del asistente guardada!', 'success')
+        return redirect(url_for('configuracion'))
+    elif request.method == 'GET':
+        # Mostramos la selección actual
+        form.asistente_persona.data = current_user.asistente_persona
+
+    return render_template(
+        'configuracion.html',
+        title='Configuración',
+        form=form
+    )
+
+
 # === Rutas de Acciones (Completar, Fallar, etc.) ===
 
 @app.route('/completar_habito/<int:habito_id>', methods=['POST'])
@@ -585,7 +642,7 @@ def feed():
 def completar_habito(habito_id):
     habito = Habito.query.get_or_404(habito_id)
     if habito.autor != current_user:
-        return redirect(url_for('habitos'))
+        return redirect(request.referrer or url_for('habitos'))
 
     # Lógica del juego
     current_user.xp_actual += habito.recompensa_xp
@@ -611,7 +668,7 @@ def completar_habito(habito_id):
 def fallar_habito(habito_id):
     habito = Habito.query.get_or_404(habito_id)
     if habito.autor != current_user:
-        return redirect(url_for('habitos'))
+        return redirect(request.referrer or url_for('habitos'))
         
     # Penalización de vida, sin bajar de 0
     current_user.vida = max(current_user.vida - habito.penalizacion_vida, 0)
@@ -629,8 +686,106 @@ def fallar_habito(habito_id):
         
     return redirect(request.referrer or url_for('habitos'))
 
+@app.route('/toggle_pendiente/<int:pendiente_id>', methods=['POST'])
+@login_required
+def toggle_pendiente(pendiente_id):
+    """Marca o desmarca un pendiente (sub-tarea) como completado."""
+    pendiente = Pendiente.query.get_or_404(pendiente_id)
+    if pendiente.mision.autor != current_user:
+        return jsonify({'success': False, 'error': 'No autorizado'}), 403
+    
+    pendiente.done = not pendiente.done
+    db.session.commit()
+    
+    # Verificamos si la misión está lista para completarse
+    mision = pendiente.mision
+    todos_completos = all(p.done for p in mision.pendientes)
+    
+    return jsonify({
+        'success': True, 
+        'done_status': pendiente.done,
+        'mision_lista': todos_completos
+    })
+
+@app.route('/completar_mision/<int:mision_id>', methods=['POST'])
+@login_required
+def completar_mision(mision_id):
+    """Marca una misión principal como completada y da recompensas."""
+    mision = Mision.query.get_or_404(mision_id)
+    if mision.autor != current_user:
+        return jsonify({'success': False, 'error': 'No autorizado'}), 403
+    
+    if mision.completada:
+        return jsonify({'success': False, 'error': 'Misión ya completada'}), 400
+
+    # Opcional: Requerir que todos los pendientes estén listos
+    if not all(p.done for p in mision.pendientes):
+        return jsonify({'success': False, 'error': 'Aún faltan pendientes por completar'}), 400
+
+    # Dar recompensas
+    current_user.xp_actual += mision.recompensa_xp
+    current_user.pesos += mision.recompensa_pesos
+    mision.completada = True
+    
+    # Lógica de subir de nivel
+    subio_de_nivel = False
+    if current_user.xp_actual >= current_user.xp_siguiente_nivel:
+        current_user.nivel += 1
+        current_user.xp_actual -= current_user.xp_siguiente_nivel
+        current_user.xp_siguiente_nivel = int(current_user.xp_siguiente_nivel * 1.5)
+        subio_de_nivel = True
+
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'mensaje': f'¡Misión "{mision.titulo}" completada!',
+        'recompensa_xp': mision.recompensa_xp,
+        'recompensa_pesos': mision.recompensa_pesos,
+        'subio_de_nivel': subio_de_nivel,
+        'nuevo_nivel': current_user.nivel,
+        'stats_actualizados': { # Para actualizar la UI
+            'xp': current_user.xp_actual,
+            'xp_siguiente': current_user.xp_siguiente_nivel,
+            'pesos_formateados': format_pesos_filter(current_user.pesos)
+        }
+    })
+
+@app.route('/api/get_mensajes_asistente')
+@login_required
+def get_mensajes_asistente():
+    """Obtiene todos los mensajes no leídos del asistente para el chat."""
+    mensajes = MensajeAsistente.query.filter_by(
+        user_id=current_user.id, 
+        leido=False
+    ).order_by(MensajeAsistente.timestamp.asc()).all()
+    
+    data = []
+    for msg in mensajes:
+        data.append({
+            'contenido': msg.contenido,
+            'timestamp': msg.timestamp.isoformat()
+        })
+        msg.leido = True # Marcamos como leído
+    
+    db.session.commit()
+    return jsonify(data)
 
 # === Función de IA de Gemini ===
+
+def get_gemini_response(prompt_text):
+    """Función helper para llamar a Gemini."""
+    if not GEMINI_API_KEY:
+        app.logger.error("GEMINI_API_KEY no está configurada.")
+        return "Error: La API de IA no está configurada."
+    try:
+        model = genai.GenerativeModel(model_name="gemini-2.5-flash")
+        response = model.generate_content(prompt_text)
+        return response.text
+    except Exception as e:
+        app.logger.error(f"Error en llamada a Gemini: {e}")
+        return "Error al contactar a la IA."
+
 
 def generate_ai_setup(user):
     """
@@ -733,5 +888,85 @@ def init_db_command():
     # db.drop_all() 
     
     db.create_all()
-    print("Base de datos inicializada (tablas creadas si no existían).")
-    # Ya no poblamos la tienda aquí, se hace con la IA en el registro.
+    
+    # Poblar las personalidades del asistente si la tabla está vacía
+    if AsistentePersonalidad.query.count() == 0:
+        personalidades = [
+            AsistentePersonalidad(nombre='Amigable', prompt_descripcion='Eres un coach de vida amigable, empático y motivador. Siempre das ánimo y eres positivo.'),
+            AsistentePersonalidad(nombre='Sarcástico', prompt_descripcion='Eres un coach de vida sarcástico e irónico, pero en el fondo quieres que el usuario mejore. Usas el humor negro.'),
+            AsistentePersonalidad(nombre='Carácter Fuerte (Coach Estricto)', prompt_descripcion='Eres un coach de vida estricto, tipo sargento de entrenamiento. Eres directo, no aceptas excusas y exiges disciplina.'),
+            AsistentePersonalidad(nombre='Filosófico', prompt_descripcion='Eres un coach de vida filosófico y reflexivo. Citas a los estoicos y haces preguntas profundas.'),
+            AsistentePersonalidad(nombre='Entusiasta (Sobreactuado)', prompt_descripcion='Eres un coach de vida exageradamente entusiasta. Usas muchas mayúsculas, signos de exclamación y celebras cada pequeño logro como si fuera la copa del mundo.')
+        ]
+        db.session.bulk_save_objects(personalidades)
+        db.session.commit()
+    
+    print("Base de datos inicializada (tablas creadas y personalidades de IA pobladas).")
+
+@app.cli.command("generar_reporte_diario")
+def generar_reporte_diario():
+    """
+    Comando para el Cron Job (Render).
+    Genera un reporte diario para CADA usuario.
+    """
+    print("Iniciando tarea programada: Generar Reportes Diarios...")
+    # Necesitamos estar en un contexto de aplicación para acceder a la BD
+    with app.app_context():
+        users = User.query.all()
+        
+        for user in users:
+            print(f"Generando reporte para: {user.username}")
+            try:
+                # 1. Recolectar datos del día
+                today = datetime.utcnow().date()
+                start_of_day = datetime.combine(today, datetime.min.time())
+                
+                # Esta lógica es una simplificación. En un sistema real,
+                # necesitaríamos un historial de hábitos completados.
+                habitos_completados_hoy = 0 # Simulación
+                habitos_pendientes = Habito.query.filter_by(autor=user).count()
+
+                misiones_vencidas = Mision.query.filter(
+                    Mision.autor == user,
+                    Mision.completada == False,
+                    Mision.plazo < datetime.utcnow()
+                ).all()
+
+                # 2. Obtener personalidad del bot
+                personalidad = AsistentePersonalidad.query.filter_by(nombre=user.asistente_persona).first()
+                if not personalidad:
+                    personalidad_prompt = "Eres un asistente amigable."
+                else:
+                    personalidad_prompt = personalidad.prompt_descripcion
+
+                # 3. Crear el prompt para Gemini
+                prompt = textwrap.dedent(f"""
+                **Rol:** {personalidad_prompt}
+                
+                **Tarea:** Escribe un breve reporte de fin de día (máximo 70 palabras) para tu usuario, {user.username}.
+                
+                **Resumen del Día:**
+                - Salud (HP): {user.vida}%
+                - Hábitos completados (estimado): {habitos_completados_hoy} (Dile que no pudiste verificar esto y que debe reportarlos)
+                - Hábitos pendientes (estimado): {habitos_pendientes}
+                - Misiones Vencidas y No Completadas: {len(misiones_vencidas)} (Títulos: {', '.join([m.titulo for m in misiones_vencidas]) if misiones_vencidas else 'Ninguna'})
+                
+                Escribe el reporte en primera persona (como "yo", el asistente). Sé breve, motivador (o sarcástico, etc., según tu rol) y menciona 1 o 2 puntos clave del resumen.
+                """)
+                
+                # 4. Generar respuesta y guardar en BD
+                reporte_contenido = get_gemini_response(prompt)
+                
+                if "Error" not in reporte_contenido:
+                    nuevo_mensaje = MensajeAsistente(
+                        user_id=user.id,
+                        contenido=reporte_contenido
+                    )
+                    db.session.add(nuevo_mensaje)
+                    db.session.commit()
+                
+            except Exception as e:
+                db.session.rollback()
+                print(f"Error generando reporte para {user.username}: {e}")
+
+    print("Tarea programada: Reportes Diarios completada.")

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+        
+        <!-- Encabezado -->
+        <div class="text-left">
+            <h2 class="text-3xl font-bold text-gray-900">
+                Configuración del Asistente
+            </h2>
+            <p class="mt-2 text-gray-600">
+                Elige cómo quieres que tu asistente de IA (ProgreSO-Bot) interactúe contigo.
+            </p>
+        </div>
+
+        <!-- Formulario de Configuración -->
+        <form class="mt-8 space-y-6" method="POST" action="{{ url_for('configuracion') }}">
+            {{ form.hidden_tag() }} <!-- CSRF Token -->
+            
+            <!-- Selección de Personalidad -->
+            <div>
+                {{ form.asistente_persona.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                <div class="space-y-3">
+                    <!-- 
+                    Renderizamos las opciones del SelectField como si fueran
+                    botones de radio para una mejor interfaz de usuario.
+                    WTForms maneja esto automáticamente.
+                    -->
+                    {% for subfield in form.asistente_persona %}
+                    <label class="flex items-center p-4 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50 transition-colors">
+                        {{ subfield(class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500") }}
+                        <span class="ml-3 block text-sm font-medium text-gray-800">{{ subfield.label.text }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% for error in form.asistente_persona.errors %}<span class="text-red-500 text-xs mt-1">{{ error }}</span>{% endfor %}
+            </div>
+
+            <!-- Botón de Enviar -->
+            <div class="pt-2">
+                {{ form.submit(class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer shadow-sm") }}
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock %}

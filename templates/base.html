@@ -1,14 +1,8 @@
 <!DOCTYPE html>
-<!-- 
-Estilo principal de la aplicación:
-Clase 'h-full' (altura completa) y 'bg-gray-100' (fondo gris claro)
-Esto define el tema "Blanco y Azul" para toda la app.
--->
-<html lang="es" class="h-full bg-gray-100">
+<html lang="es" class="h-full bg-gray-100"> <!-- Fondo gris claro -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <!-- Título dinámico -->
     <title>ProgreSO - {{ title or 'Tu Vida como un Juego' }}</title>
     
@@ -20,38 +14,85 @@ Esto define el tema "Blanco y Azul" para toda la app.
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome (Nueva librería de iconos) -->
+    <!-- Font Awesome (Iconos) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        /* Fuente principal para toda la aplicación */
-        body { 
-            font-family: 'Inter', sans-serif; 
-        }
+        body { font-family: 'Inter', sans-serif; }
         
-        /* Scrollbar personalizada (WebKit - Chrome/Safari) */
-        ::-webkit-scrollbar { 
-            width: 8px; 
-            height: 8px;
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e5e7eb; } /* gray-200 */
+        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; } /* gray-400 */
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; } /* gray-500 */
+        
+        /* --- ESTILOS PARA EL ASISTENTE (CHAT-BOT) --- */
+        #asistente-chat-container {
+            position: fixed;
+            bottom: 1.5rem; /* 24px */
+            right: 1.5rem; /* 24px */
+            z-index: 50;
+            width: 350px;
         }
-        ::-webkit-scrollbar-track { 
-            background: #e5e7eb; /* gray-200 */
+        #asistente-burbuja {
+            width: 3.5rem; /* 56px */
+            height: 3.5rem; /* 56px */
+            border-radius: 9999px;
+            background-color: #2563eb; /* blue-600 */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease-in-out;
         }
-        ::-webkit-scrollbar-thumb { 
-            background: #9ca3af; /* gray-400 */
-            border-radius: 4px; 
+        #asistente-burbuja:hover {
+            background-color: #1d4ed8; /* blue-700 */
+            transform: scale(1.1);
         }
-        ::-webkit-scrollbar-thumb:hover { 
-            background: #6b7280; /* gray-500 */
+        #asistente-ventana {
+            width: 100%;
+            height: 400px;
+            background-color: white;
+            border-radius: 0.75rem; /* 12px */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e5e7eb; /* gray-200 */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        #asistente-ventana-header {
+            background-color: #f9fafb; /* gray-50 */
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e7eb; /* gray-200 */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #asistente-mensajes {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem; /* 12px */
+        }
+        .mensaje-asistente {
+            background-color: #eef2ff; /* indigo-50 */
+            color: #312e81; /* indigo-900 */
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem 0.75rem 0.75rem 0.125rem; /* Burbuja de chat */
+            max-width: 90%;
+            align-self: flex-start;
+            font-size: 0.875rem; /* 14px */
+            line-height: 1.25rem; /* 20px */
+            white-space: pre-wrap; /* Respeta los saltos de línea del bot */
         }
     </style>
     
-    <!-- 
-    Bloque 'head_extra':
-    Permite a las páginas "hijas" (como index.html o areas.html) 
-    inyectar CSS o JS específico en el <head> sin repetir código.
-    Lo usamos para definir los iconos de las Áreas de Vida.
-    -->
+    <!-- Bloque para añadir CSS o JS específico de una página -->
     {% block head_extra %}{% endblock %}
 
 </head>
@@ -66,8 +107,7 @@ Esto define el tema "Blanco y Azul" para toda la app.
             <!-- Sección Superior: Logo y Navegación -->
             <div>
                 <!-- Logo y Título -->
-                <a href="{{ url_for('index') }}" class="flex items-center space-x-3 text-gray-900 px-2 py-1 rounded-lg">
-                    <!-- Icono Font Awesome (Gráfico) -->
+                <a href="{{ url_for('index') }}" class="flex items-center space-x-3 text-gray-900 p-2 rounded-lg hover:bg-gray-100">
                     <i class="fa-solid fa-chart-line h-8 w-8 text-blue-600"></i>
                     <span class="text-2xl font-bold">ProgreSO</span>
                 </a>
@@ -95,7 +135,7 @@ Esto define el tema "Blanco y Azul" para toda la app.
                         <i class="fa-solid fa-layer-group h-5 w-5 fa-fw"></i>
                         <span>Gestionar Áreas</span>
                     </a>
-                    
+
                     <a href="{{ url_for('misiones') }}" 
                        class="flex items-center space-x-3 p-3 rounded-lg font-medium 
                               {% if request.endpoint == 'misiones' %}
@@ -114,7 +154,7 @@ Esto define el tema "Blanco y Azul" para toda la app.
                               {% else %}
                                   text-gray-600 hover:bg-gray-100 hover:text-gray-900
                               {% endif %}">
-                        <i class="fa-solid fa-calendar-check h-5 w-5 fa-fw"></i>
+                        <i class="fa-solid fa-arrows-spin h-5 w-5 fa-fw"></i>
                         <span>Hábitos</span>
                     </a>
                     
@@ -139,6 +179,17 @@ Esto define el tema "Blanco y Azul" para toda la app.
                         <i class="fa-solid fa-users h-5 w-5 fa-fw"></i>
                         <span>Feed Social</span>
                     </a>
+
+                    <a href="{{ url_for('configuracion') }}" 
+                       class="flex items-center space-x-3 p-3 rounded-lg font-medium 
+                              {% if request.endpoint == 'configuracion' %}
+                                  bg-blue-100 text-blue-700
+                              {% else %}
+                                  text-gray-600 hover:bg-gray-100 hover:text-gray-900
+                              {% endif %}">
+                        <i class="fa-solid fa-gear h-5 w-5 fa-fw"></i>
+                        <span>Configuración</span>
+                    </a>
                 </nav>
             </div>
             
@@ -147,12 +198,15 @@ Esto define el tema "Blanco y Azul" para toda la app.
                 
                 <!-- Barra de Vida (HP) -->
                 <div class="px-2 mb-3">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-sm font-medium text-red-700">Vida (HP)</span>
-                        <span class="text-sm font-bold text-red-700">{{ current_user.vida }}%</span>
-                    </div>
-                    <div class="w-full bg-red-200 rounded-full h-2">
-                        <div class="bg-red-600 h-2 rounded-full" style="width: {{ current_user.vida }}%;"></div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Vida (HP)</label>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="h-2.5 rounded-full 
+                            {% if current_user.vida > 50 %} bg-green-500 
+                            {% elif current_user.vida > 20 %} bg-yellow-500 
+                            {% else %} bg-red-600 
+                            {% endif %}" 
+                            style="width: {{ current_user.vida }}%;">
+                        </div>
                     </div>
                 </div>
 
@@ -164,17 +218,13 @@ Esto define el tema "Blanco y Azul" para toda la app.
                           {% else %}
                               hover:bg-gray-100
                           {% endif %}">
-                    <!-- Avatar con Font Awesome -->
-                    <span class="flex items-center justify-center h-9 w-9 rounded-full bg-blue-600 text-white font-medium">
-                        {{ current_user.username[0]|upper }}
-                    </span>
-                    <span class="font-medium text-gray-900">{{ current_user.username }}</span>
+                    <i class="fa-solid fa-user h-8 w-8 rounded-full bg-blue-600 text-white p-2 flex items-center justify-center"></i>
+                    <span class="font-medium text-gray-800">{{ current_user.username }}</span>
                 </a>
                 
                 <!-- Cerrar Sesión -->
-                <a href="{{ url_for('logout') }}" 
-                   class="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-red-600 group mt-1">
-                    <i class="fa-solid fa-arrow-right-from-bracket h-5 w-5 fa-fw text-gray-400 group-hover:text-red-600"></i>
+                <a href="{{ url_for('logout') }}" class="flex items-center space-x-3 p-2 rounded-lg text-red-600 hover:bg-red-50 mt-2">
+                    <i class="fa-solid fa-arrow-right-from-bracket h-6 w-6 fa-fw"></i>
                     <span class="font-medium">Cerrar Sesión</span>
                 </a>
             </div>
@@ -185,52 +235,172 @@ Esto define el tema "Blanco y Azul" para toda la app.
         <!-- =================================== -->
         <main class="flex-1 overflow-y-auto bg-gray-100 p-8">
             
-            <!-- Contenedor para Mensajes Flash (Notificaciones) -->
-            <div class="fixed top-5 right-5 z-50 w-full max-w-sm">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <!-- Notificación Individual -->
-                            <div class="p-4 rounded-lg shadow-lg mb-3 flex items-start space-x-3 
-                                {% if category == 'danger' %} bg-red-500 text-white
-                                {% elif category == 'success' %} bg-green-500 text-white
-                                {% elif category == 'warning' %} bg-yellow-500 text-white
-                                {% else %} bg-blue-500 text-white
-                                {% endif %}"
-                                 role="alert">
-                                
-                                <!-- Icono de la Notificación -->
-                                <div class="flex-shrink-0">
-                                    {% if category == 'danger' %}
-                                        <i class="fa-solid fa-circle-xmark h-5 w-5"></i>
-                                    {% elif category == 'success' %}
-                                        <i class="fa-solid fa-circle-check h-5 w-5"></i>
-                                    {% elif category == 'warning' %}
-                                        <i class="fa-solid fa-triangle-exclamation h-5 w-5"></i>
-                                    {% else %}
-                                        <i class="fa-solid fa-circle-info h-5 w-5"></i>
-                                    {% endif %}
-                                </div>
-                                
-                                <!-- Mensaje -->
-                                <div class="flex-1">
-                                    <p class="font-medium">{{ message }}</p>
-                                </div>
+            <!-- Mensajes Flash (Notificaciones) -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <!-- Contenedor de notificaciones -->
+                    <div class="fixed top-5 right-5 z-50 w-full max-w-sm">
+                    {% for category, message in messages %}
+                        <div class="p-4 rounded-lg shadow-lg mb-2 flex items-start space-x-3
+                            {% if category == 'danger' %} bg-red-100 border border-red-200 text-red-800
+                            {% elif category == 'success' %} bg-green-100 border border-green-200 text-green-800
+                            {% elif category == 'warning' %} bg-yellow-100 border border-yellow-200 text-yellow-800
+                            {% else %} bg-blue-100 border border-blue-200 text-blue-800
+                            {% endif %}"
+                            role="alert">
+                            
+                            <!-- Icono -->
+                            <div class="flex-shrink-0">
+                                {% if category == 'danger' %}
+                                <i class="fa-solid fa-circle-xmark"></i>
+                                {% elif category == 'success' %}
+                                <i class="fa-solid fa-circle-check"></i>
+                                {% elif category == 'warning' %}
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                {% else %}
+                                <i class="fa-solid fa-circle-info"></i>
+                                {% endif %}
                             </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-            </div>
+                            <!-- Mensaje -->
+                            <div class="flex-1">
+                                <p class="text-sm font-medium">{{ message }}</p>
+                            </div>
+                            <!-- Botón de cerrar (opcional) -->
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
 
             <!-- Título de la Página -->
             <h1 class="text-4xl font-bold text-gray-900 mb-6">{{ title }}</h1>
 
             <!-- Contenido Específico de la Página -->
-            <div class="max-w-7xl mx-auto">
+            <div classKA="max-w-7xl mx-auto">
                 {% block content %}{% endblock %}
             </div>
-            
         </main>
     </div>
+
+    <!-- =================================== -->
+    <!-- Asistente (Chat-bot) UI             -->
+    <!-- =================================== -->
+    <div id="asistente-chat-container">
+        <!-- Ventana de Chat (inicialmente oculta) -->
+        <div id="asistente-ventana" class="hidden">
+            <div id="asistente-ventana-header">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-robot text-blue-600"></i>
+                    <span class="font-semibold text-gray-900">Tu Asistente</span>
+                </div>
+                <button id="asistente-cerrar-btn" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-times h-5 w-5"></i>
+                </button>
+            </div>
+            <div id="asistente-mensajes">
+                <!-- Los mensajes se cargarán aquí -->
+                <div class="mensaje-asistente">
+                    ¡Hola! Estoy aquí para ayudarte a revisar tu progreso.
+                </div>
+            </div>
+        </div>
+
+        <!-- Burbuja para Abrir/Cerrar Chat -->
+        <button id="asistente-burbuja">
+            <i id="asistente-icono-burbuja" class="fa-solid fa-robot fa-lg"></i>
+            <span id="asistente-notificacion" class="hidden absolute top-0 right-0 h-3 w-3 bg-red-500 rounded-full border-2 border-white"></span>
+        </button>
+    </div>
+
+    <!-- =================================== -->
+    <!-- JavaScript para el Asistente        -->
+    <!-- =================================== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const burbuja = document.getElementById('asistente-burbuja');
+            const ventana = document.getElementById('asistente-ventana');
+            const cerrarBtn = document.getElementById('asistente-cerrar-btn');
+            const mensajesDiv = document.getElementById('asistente-mensajes');
+            const notificacion = document.getElementById('asistente-notificacion');
+            const iconoBurbuja = document.getElementById('asistente-icono-burbuja');
+
+            // Prevenimos que se ejecute en páginas de login/registro
+            if (!burbuja) return;
+
+            let ventanaAbierta = false;
+
+            // Función para añadir un mensaje a la ventana
+            function addMensajeAsistente(texto) {
+                // Limpiamos el mensaje de bienvenida si es el primero
+                if (mensajesDiv.children.length === 1 && mensajesDiv.children[0].textContent.includes("¡Hola!")) {
+                    mensajesDiv.innerHTML = '';
+                }
+
+                const msgEl = document.createElement('div');
+                msgEl.classList.add('mensaje-asistente');
+                msgEl.textContent = texto;
+                mensajesDiv.appendChild(msgEl);
+                // Auto-scroll al fondo
+                mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
+            }
+
+            // Función para abrir/cerrar la ventana
+            function toggleVentana() {
+                ventanaAbierta = !ventanaAbierta;
+                if (ventanaAbierta) {
+                    ventana.classList.remove('hidden');
+                    burbuja.classList.add('hidden'); // Ocultar burbuja al abrir
+                    notificacion.classList.add('hidden'); // Ocultar punto rojo
+                } else {
+                    ventana.classList.add('hidden');
+                    burbuja.classList.remove('hidden');
+                }
+            }
+
+            burbuja.addEventListener('click', toggleVentana);
+            cerrarBtn.addEventListener('click', toggleVentana);
+
+            // 1. Cargar mensajes no leídos (reporte diario, etc.) al cargar la página
+            async function cargarMensajesNoLeidos() {
+                try {
+                    const response = await fetch('/api/get_mensajes_asistente');
+                    if (!response.ok) return;
+                    
+                    const mensajes = await response.json();
+                    
+                    if (mensajes.length > 0) {
+                        mensajes.forEach(msg => addMensajeAsistente(msg.contenido));
+                        // Mostrar notificación si la ventana está cerrada
+                        if (!ventanaAbierta) {
+                            notificacion.classList.remove('hidden');
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error cargando mensajes del asistente:", e);
+                }
+            }
+
+            // 2. (Función futura) Pedir un tip ocasional
+            // async function pedirTip() {
+            //     try {
+            //         const response = await fetch('/api/get_asistente_tip');
+            //         if (!response.ok) return;
+            //         const data = await response.json();
+            //         if (data.tip) {
+            //             addMensajeAsistente(data.tip);
+            //             if (!ventanaAbierta) {
+            //                 notificacion.classList.remove('hidden');
+            //             }
+            //         }
+            //     } catch (e) { console.error("Error pidiendo tip:", e); }
+            // }
+
+            // Iniciar
+            cargarMensajesNoLeidos();
+            
+            // (Opcional) Activar para tips periódicos
+            // setInterval(pedirTip, 120000); // Pedir un tip cada 2 minutos
+        });
+    </script>
 </body>
 </html>
