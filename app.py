@@ -643,7 +643,7 @@ def generate_ai_setup(user):
 
     try:
         model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash", # Usamos el modelo Flash
+            model_name="gemini-2.5-flash", # Usamos el modelo Flash
             generation_config={"response_mime_type": "application/json"} # Pedimos JSON
         )
 
