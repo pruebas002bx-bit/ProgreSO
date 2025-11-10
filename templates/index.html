@@ -1,72 +1,21 @@
 {% extends 'base.html' %}
 
-<!-- 
-Este bloque 'head_extra' es un espacio opcional en 'base.html' 
-para añadir estilos o scripts específicos para esta página.
-En este caso, definimos los iconos para las Áreas de Vida.
--->
 {% block head_extra %}
-<style>
-    /* Definimos los estilos de los iconos para las áreas.
-    Usamos 'mask' con un 'background-color' para que el SVG
-    pueda ser coloreado dinámicamente.
-    */
-    [data-icon] {
-        width: 1.5rem; /* 24px */
-        height: 1.5rem; /* 24px */
-        -webkit-mask-size: cover;
-        mask-size: cover;
-    }
-    
-    /* Color del icono dentro de la tarjeta de área */
-    .area-icon {
-        background-color: #1d4ed8; /* blue-700 */
-    }
-
-    [data-icon="icono-salud"] {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z' /%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z' /%3E%3C/svg%3E");
-    }
-    [data-icon="icono-finanzas"] {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9H3.75M2.25 6c.075.015.15.03.225.046M2.25 6a.75.75 0 0 0-.75.75v12a.75.75 0 0 0 .75.75h.75m0-13.5h.008v.008H3m0 0v.008h.008v-.008H3Z' /%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9H3.75M2.25 6c.075.015.15.03.225.046M2.25 6a.75.75 0 0 0-.75.75v12a.75.75 0 0 0 .75.75h.75m0-13.5h.008v.008H3m0 0v.008h.008v-.008H3Z' /%3E%3C/svg%3E");
-    }
-    [data-icon="icono-trabajo"] {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M20.25 14.15v4.07a2.25 2.25 0 0 1-2.25 2.25h-13.5A2.25 2.25 0 0 1 2.25 18.22V14.15M15.75 13.5v.75c0 .414-.336.75-.75.75h-3a.75.75 0 0 1-.75-.75v-.75m5.25 0V7.875c0-.621-.504-1.125-1.125-1.125h-3.75c-.621 0-1.125.504-1.125 1.125v5.625m5.25 0h-4.5M7.5 13.5v.75c0 .414.336.75.75.75h3a.75.75 0 0 0 .75-.75v-.75m-5.25 0V7.875c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125v5.625m-5.25 0h4.5' /%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M20.25 14.15v4.07a2.25 2.25 0 0 1-2.25 2.25h-13.5A2.25 2.25 0 0 1 2.25 18.22V14.15M15.75 13.5v.75c0 .414-.336.75-.75.75h-3a.75.75 0 0 1-.75-.75v-.75m5.25 0V7.875c0-.621-.504-1.125-1.125-1.125h-3.75c-.621 0-1.125.504-1.125 1.125v5.625m5.25 0h-4.5M7.5 13.5v.75c0 .414.336.75.75.75h3a.75.75 0 0 0 .75-.75v-.75m-5.25 0V7.875c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125v5.625m-5.25 0h4.5' /%3E%3C/svg%3E");
-    }
-    [data-icon="icono-estudio"] {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25' /%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25' /%3E%3C/svg%3E");
-    }
-    [data-icon="icono-personal"] {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z' /%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z' /%3E%3C/svg%3E");
-    }
-    [data-icon="icono-social"] {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666l-.014.123m-5.86-.031a11.959 11.959 0 0 1-2.599 0m5.858 0Abc.m0 0a11.959 11.959 0 0 0-2.599 0m2.599 0A11.959 11.959 0 0 0 9 18.73m0 0a11.959 11.959 0 0 0-2.599 0m2.599 0A11.959 11.959 0 0 0 3.741 18.73m0 0a9.094 9.094 0 0 0-3.741-.479 3 3 0 0 0 4.682 2.72M3.741 18.253v.031c0 .225.012.447.037.666l.014.123m-5.86-.031a11.959 11.959 0 0 1 2.599 0m-5.858 0a11.959 11.959 0 0 0 2.599 0m-2.599 0A11.959 11.959 0 0 0 9 18.73m0 0a11.959 11.959 0 0 0 2.599 0m-2.599 0A11.959 11.959 0 0 0 15 18.73m0 0a11.959 11.959 0 0 0 2.599 0M9 12.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm12 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z' /%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666l-.014.123m-5.86-.031a11.959 11.959 0 0 1-2.599 0m5.858 0Abc.m0 0a11.959 11.959 0 0 0-2.599 0m2.599 0A11.959 11.959 0 0 0 9 18.73m0 0a11.959 11.959 0 0 0-2.599 0m2.599 0A11.959 11.959 0 0 0 3.741 18.73m0 0a9.094 9.094 0 0 0-3.741-.479 3 3 0 0 0 4.682 2.72M3.741 18.253v.031c0 .225.012.447.037.666l.014.123m-5.86-.031a11.959 11.959 0 0 1 2.599 0m-5.858 0a11.959 11.959 0 0 0 2.599 0m-2.599 0A11.959 11.959 0 0 0 9 18.73m0 0a11.959 11.959 0 0 0 2.599 0m-2.599 0A11.959 11.959 0 0 0 15 18.73m0 0a11.959 11.959 0 0 0 2.599 0M9 12.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm12 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z' /%3E%3C/svg%3E");
-    }
-    [data-icon="icono-default"] {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.31h5.418a.563.563 0 0 1 .372.956l-4.386 3.176a.563.563 0 0 0-.182.557l1.658 5.36a.562.562 0 0 1-.84.62l-4.74-3.483a.562.562 0 0 0-.668 0l-4.74 3.483a.562.562 0 0 1-.84-.62l1.658-5.36a.562.562 0 0 0-.182-.557l-4.386-3.176a.563.563 0 0 1 .372-.956h5.418a.563.563 0 0 0 .475-.31L11.48 3.5Z' /%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.31h5.418a.563.563 0 0 1 .372.956l-4.386 3.176a.563.563 0 0 0-.182.557l1.658 5.36a.562.562 0 0 1-.84.62l-4.74-3.483a.562.562 0 0 0-.668 0l-4.74 3.483a.562.562 0 0 1-.84-.62l1.658-5.36a.562.562 0 0 0-.182-.557l-4.386-3.176a.563.563 0 0 1 .372-.956h5.418a.563.563 0 0 0 .475-.31L11.48 3.5Z' /%3E%3C/svg%3E");
-    }
-
-</style>
+    <!-- Chart.js (Necesario para el gráfico de radar) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 {% endblock %}
 
 {% block content %}
 <!-- Saludo -->
 <h2 class="text-3xl font-semibold text-gray-800 mb-6">¡Bienvenido de nuevo, {{ stats.username }}!</h2>
 
-<!-- Grid de Estadísticas Principales -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<!-- Grid de Estadísticas Principales (CORREGIDO) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
     
     <!-- Nivel -->
     <div class="bg-white p-6 rounded-xl shadow-sm flex items-center space-x-4 border border-gray-200">
         <div class="bg-blue-100 p-3 rounded-full">
-            <!-- Icono: Nivel (Trending Up) -->
-            <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.518 5.518m5.518-5.518v5.518m0-5.518H16.5a11.95 11.95 0 0 0-5.814 5.518l-4.306-4.306L2.25 18Z" /></svg>
+            <i class="fa-solid fa-star h-6 w-6 text-blue-600"></i>
         </div>
         <div>
             <p class="text-sm text-gray-600">Nivel</p>
@@ -76,9 +25,8 @@ En este caso, definimos los iconos para las Áreas de Vida.
     
     <!-- Vida (HP) -->
     <div class="bg-white p-6 rounded-xl shadow-sm flex items-center space-x-4 border border-gray-200">
-        <div class="bg-red-100 p-3 rounded-full">
-            <!-- Icono: Vida (Corazón) -->
-            <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
+        <div class="bg-green-100 p-3 rounded-full">
+            <i class="fa-solid fa-heart h-6 w-6 text-green-600"></i>
         </div>
         <div>
             <p class="text-sm text-gray-600">Vida (HP)</p>
@@ -88,20 +36,20 @@ En este caso, definimos los iconos para las Áreas de Vida.
 
     <!-- Pesos (COP) -->
     <div class="bg-white p-6 rounded-xl shadow-sm flex items-center space-x-4 border border-gray-200">
-        <div class="bg-green-100 p-3 rounded-full">
-            <!-- Icono: Pesos (Moneda) -->
-            <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45.22-2.003.659Z" /></svg>
+        <div class="bg-yellow-100 p-3 rounded-full">
+            <i class="fa-solid fa-coins h-6 w-6 text-yellow-600"></i>
         </div>
         <div>
             <p class="text-sm text-gray-600">Pesos (COP)</p>
+            <!-- CORRECCIÓN: El $ está aquí, y el filtro ya no lo tiene -->
             <p class="text-2xl font-bold text-gray-900">$ {{ stats.pesos | format_pesos }}</p>
         </div>
     </div>
 
-    <!-- XP (Experiencia) -->
-    <div class="bg-white p-6 rounded-xl shadow-sm col-span-1 md:col-span-2 lg:col-span-4 border border-gray-200">
+    <!-- XP (Experiencia) (CORREGIDO - Layout) -->
+    <div class="bg-white p-6 rounded-xl shadow-sm lg:col-span-3 border border-gray-200">
         <div class="flex justify-between items-center mb-2">
-            <p class="text-sm text-gray-600">Experiencia (XP)</p>
+            <p class="text-sm font-medium text-gray-700">Progreso de Experiencia</p>
             <p class="text-sm font-medium text-blue-600">{{ stats.xp_actual }} / {{ stats.xp_siguiente_nivel }} XP</p>
         </div>
         <div class="w-full bg-gray-200 rounded-full h-3">
@@ -111,104 +59,203 @@ En este caso, definimos los iconos para las Áreas de Vida.
 </div>
 
 <!-- Título de Áreas -->
-<div class="flex justify-between items-center mb-4">
-    <h3 class="text-2xl font-semibold text-gray-800">Áreas de Vida</h3>
-    <a href="{{ url_for('areas') }}" class="text-sm font-medium text-blue-600 hover:text-blue-500">
-        Gestionar Áreas
-    </a>
-</div>
+<h2 class="text-2xl font-semibold text-gray-800 mb-6">Resumen de Áreas de Vida</h2>
 
-<!-- Contenedor de Áreas de Vida -->
-<div class="space-y-6">
-    {% if areas %}
-        {% for area in areas %}
-        <!-- Tarjeta de Área Individual -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <!-- Encabezado del Área -->
-            <div class="p-4 bg-white border-b border-gray-200">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-100 p-2 rounded-lg">
-                        <div data-icon="{{ area.icono_svg }}" class="area-icon"></div>
+<!-- Contenedor de Áreas de Vida y Gráfico (NUEVO Layout) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- Columna de Áreas (ocupa 2 columnas en large) -->
+    <div class="lg:col-span-2 space-y-6">
+        {% if areas %}
+            {% for area in areas %}
+            <!-- Tarjeta de Área Individual -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <!-- Encabezado del Área -->
+                <div class="flex items-center space-x-3 mb-4">
+                    <span class="flex items-center justify-center h-10 w-10 rounded-full bg-blue-100 text-blue-600">
+                        {% if area.icono_svg == 'icono-salud' %}
+                            <i class="fa-solid fa-heart-pulse"></i>
+                        {% elif area.icono_svg == 'icono-dinero' %}
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        {% elif area.icono_svg == 'icono-carrera' %}
+                            <i class="fa-solid fa-briefcase"></i>
+                        {% elif area.icono_svg == 'icono-estudio' %}
+                            <i class="fa-solid fa-book-open"></i>
+                        {% elif area.icono_svg == 'icono-mente' %}
+                            <i class="fa-solid fa-brain"></i>
+                        {% elif area.icono_svg == 'icono-social' %}
+                            <i class="fa-solid fa-users"></i>
+                        {% elif area.icono_svg == 'icono-hobby' %}
+                            <i class="fa-solid fa-guitar"></i>
+                        {% else %}
+                            <i class="fa-solid fa-star"></i>
+                        {% endif %}
+                    </span>
+                    <h3 class="text-xl font-semibold text-gray-900">{{ area.nombre }}</h3>
+                </div>
+
+                <!-- Contenido del Área (Misiones y Hábitos) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Misiones Activas -->
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-500 mb-2">Misiones Activas</h4>
+                        <ul class="space-y-2">
+                            {% set misiones_activas = area.misiones | selectattr('completada', 'equalto', false) | list %}
+                            {% if misiones_activas %}
+                                {% for mision in misiones_activas[:3] %} <!-- Mostrar max 3 -->
+                                <li class="text-gray-800 text-sm">
+                                    <i class="fa-solid fa-bullseye fa-fw text-gray-400 mr-1"></i>
+                                    {{ mision.titulo }}
+                                    <!-- Lógica de Plazo -->
+                                    {% if mision.plazo %}
+                                        {% set hoy = (datetime.utcnow() + timedelta(days=-1)).date() %}
+                                        {% set plazo_fecha = mision.plazo.date() %}
+                                        <span class="text-xs {% if plazo_fecha < hoy %}text-red-600{% else %}text-gray-500{% endif %}">
+                                            (Plazo: {{ mision.plazo.strftime('%d-%m') }})
+                                        </span>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            {% else %}
+                                <li class="text-gray-500 text-sm italic">Sin misiones activas.</li>
+                            {% endif %}
+                        </ul>
+                        <a href="{{ url_for('misiones') }}" class="text-sm font-medium text-blue-600 hover:underline mt-2 inline-block">Ver todas...</a>
                     </div>
-                    <h4 class="text-xl font-semibold text-gray-900">{{ area.nombre }}</h4>
+                    <!-- Hábitos Activos -->
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-500 mb-2">Hábitos Diarios</h4>
+                        <ul class="space-y-2">
+                            {% if area.habitos %}
+                                {% for habito in area.habitos[:3] %} <!-- Mostrar max 3 -->
+                                <li class="text-gray-800 text-sm">
+                                    <i class="fa-solid fa-calendar-check fa-fw text-gray-400 mr-1"></i>
+                                    {{ habito.titulo }} (Racha: {{ habito.racha }})
+                                </li>
+                                {% endfor %}
+                            {% else %}
+                                <li class="text-gray-500 text-sm italic">Sin hábitos activos.</li>
+                            {% endif %}
+                        </ul>
+                        <a href="{{ url_for('habitos') }}" class="text-sm font-medium text-blue-600 hover:underline mt-2 inline-block">Ver todos...</a>
+                    </div>
                 </div>
             </div>
-            
-            <!-- Contenido del Área (Misiones y Hábitos) -->
-            <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                
-                <!-- Columna de Misiones -->
-                <div>
-                    <h5 class="font-semibold text-gray-700 mb-2">Misiones Activas</h5>
-                    <ul class="space-y-2">
-                        {% set misiones_activas = area.misiones | selectattr('completada', 'equalto', false) | list %}
-                        {% if misiones_activas %}
-                            {% for mision in misiones_activas %}
-                            <li class="bg-gray-50 border border-gray-200 p-3 rounded-lg flex justify-between items-center hover:bg-gray-100">
-                                <div>
-                                    <p class="font-medium text-gray-800">{{ mision.titulo }}</p>
-                                    <p class="text-xs text-gray-500">+{{ mision.recompensa_xp }} XP / +{{ mision.recompensa_pesos | format_pesos }} COP</p>
-                                </div>
-                                <a href="{{ url_for('misiones') }}" class="text-blue-600 hover:text-blue-500 text-sm font-medium ml-2">Ver</a>
-                            </li>
-                            {% endfor %}
-                        {% else %}
-                            <li class="bg-gray-50 border border-gray-200 p-3 rounded-lg">
-                                <p class="text-sm text-gray-500">No hay misiones activas en esta área.</p>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-10 bg-white rounded-xl shadow-sm border border-gray-200">
+                <i class="fa-solid fa-layer-group fa-3x text-gray-400"></i>
+                <h3 class="mt-4 text-xl font-semibold text-gray-900">Aún no tienes Áreas de Vida</h3>
+                <p class="mt-1 text-gray-500">
+                    Ve a "Gestionar Áreas" en el menú para crear tu primera área, como "Salud" o "Finanzas".
+                </p>
+                <a href="{{ url_for('areas') }}" class="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg">
+                    Crear mi primera Área
+                </a>
+            </div>
+        {% endif %}
+    </div>
 
-                <!-- Columna de Hábitos -->
-                <div>
-                    <h5 class="font-semibold text-gray-700 mb-2">Hábitos Diarios</h5>
-                    <ul class="space-y-2">
-                        {% if area.habitos %}
-                            {% for habito in area.habitos %}
-                            <li class="bg-gray-50 border border-gray-200 p-3 rounded-lg flex justify-between items-center">
-                                <div>
-                                    <p class="font-medium text-gray-800">{{ habito.titulo }}</p>
-                                    <p class="text-xs text-yellow-700">Racha: {{ habito.racha }} días</p>
-                                </div>
-                                <!-- Botones de Completar / Fallar -->
-                                <div class="flex space-x-2">
-                                    <!-- Fallar -->
-                                    <form action="{{ url_for('fallar_habito', habito_id=habito.id) }}" method="POST">
-                                        <button type="submit" class="bg-red-100 hover:bg-red-200 text-red-600 font-bold p-2 rounded-full h-9 w-9 flex items-center justify-center" title="Marcar como fallado">
-                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-                                        </button>
-                                    </form>
-                                    <!-- Completar -->
-                                    <form action="{{ url_for('completar_habito', habito_id=habito.id) }}" method="POST">
-                                        <button type="submit" class="bg-green-100 hover:bg-green-200 text-green-600 font-bold p-2 rounded-full h-9 w-9 flex items-center justify-center" title="Completar hoy">
-                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </li>
-                            {% endfor %}
-                        {% else %}
-                            <li class="bg-gray-50 border border-gray-200 p-3 rounded-lg">
-                                <p class="text-sm text-gray-500">No hay hábitos en esta área.</p>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </div>
-
+    <!-- Columna del Gráfico (ocupa 1 columna en large) (NUEVO) -->
+    <div class="lg:col-span-1">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h3 class="text-xl font-semibold mb-4 text-gray-900">Enfoque de Tareas</h3>
+            <p class="text-sm text-gray-600 mb-4">
+                Distribución de todas tus tareas (misiones y hábitos) por área.
+            </p>
+            <div class="h-80 w-full">
+                <canvas id="radarChart"></canvas>
             </div>
         </div>
-        {% endfor %}
-    {% else %}
-        <!-- Mensaje si no hay áreas creadas -->
-        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">¡Comienza tu Aventura!</h3>
-            <p class="text-gray-600 mb-4">Aún no has definido tus "Áreas de Vida".</p>
-            <p class="text-gray-600 mb-6">Las áreas te permiten organizar tus misiones y hábitos (Ej. "Salud", "Finanzas", "Estudios").</p>
-            <a href="{{ url_for('areas') }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg shadow-md transition-colors">
-                Crear mi primera Área
-            </a>
-        </div>
-    {% endif %}
+    </div>
 </div>
+
+<!-- =================================== -->
+<!-- JavaScript para Gráfico Radar       -->
+<!-- =================================== -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('radarChart');
+        if (ctx) {
+            // Preparamos los datos que vienen desde Flask/Jinja
+            const labels = [];
+            const dataMisiones = [];
+            const dataHabitos = [];
+
+            {% for area in areas %}
+                labels.push("{{ area.nombre }}");
+                dataMisiones.push({{ area.misiones | selectattr('completada', 'equalto', false) | list | length }});
+                dataHabitos.push({{ area.habitos | list | length }});
+            {% endfor %}
+
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Misiones Activas',
+                            data: dataMisiones,
+                            fill: true,
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)', // blue-500 con opacidad
+                            borderColor: 'rgb(59, 130, 246)',
+                            pointBackgroundColor: 'rgb(59, 130, 246)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(59, 130, 246)'
+                        },
+                        {
+                            label: 'Hábitos Activos',
+                            data: dataHabitos,
+                            fill: true,
+                            backgroundColor: 'rgba(22, 163, 74, 0.2)', // green-600 con opacidad
+                            borderColor: 'rgb(22, 163, 74)',
+                            pointBackgroundColor: 'rgb(22, 163, 74)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(22, 163, 74)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: '#e5e7eb' // gray-200
+                            },
+                            grid: {
+                                color: '#e5e7eb' // gray-200
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 14,
+                                    family: 'Inter, sans-serif'
+                                },
+                                color: '#1f2937' // gray-800
+                            },
+                            ticks: {
+                                backdropColor: 'rgba(255, 255, 255, 0.75)',
+                                color: '#6b7280', // gray-500
+                                stepSize: 1 // Mostrar 1, 2, 3...
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    family: 'Inter, sans-serif'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+
 {% endblock %}

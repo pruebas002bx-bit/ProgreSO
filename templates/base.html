@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <!-- Título dinámico -->
     <title>ProgreSO - {{ title or 'Tu Vida como un Juego' }}</title>
     
@@ -17,16 +18,19 @@
     <!-- Font Awesome (Iconos) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- Chart.js (Para el gráfico de radar en index.html) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    
     <style>
         body { font-family: 'Inter', sans-serif; }
         
-        /* Scrollbar personalizada */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #e5e7eb; } /* gray-200 */
-        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; } /* gray-400 */
-        ::-webkit-scrollbar-thumb:hover { background: #6b7280; } /* gray-500 */
-        
-        /* --- ESTILOS PARA EL ASISTENTE (CHAT-BOT) --- */
+        /* Scrollbar personalizada para el área de contenido */
+        main::-webkit-scrollbar { width: 8px; }
+        main::-webkit-scrollbar-track { background: #f1f5f9; } /* gray-100 */
+        main::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; } /* gray-300 */
+        main::-webkit-scrollbar-thumb:hover { background: #94a3b8; } /* gray-400 */
+
+        /* Estilos del Asistente de IA (Bot) */
         #asistente-chat-container {
             position: fixed;
             bottom: 1.5rem; /* 24px */
@@ -78,21 +82,22 @@
             display: flex;
             flex-direction: column;
             gap: 0.75rem; /* 12px */
+            background-color: #f9fafb; /* gray-50 */
         }
         .mensaje-asistente {
             background-color: #eef2ff; /* indigo-50 */
-            color: #312e81; /* indigo-900 */
+            color: #3730a3; /* indigo-900 */
             padding: 0.5rem 1rem;
             border-radius: 0.75rem 0.75rem 0.75rem 0.125rem; /* Burbuja de chat */
             max-width: 90%;
             align-self: flex-start;
             font-size: 0.875rem; /* 14px */
             line-height: 1.25rem; /* 20px */
-            white-space: pre-wrap; /* Respeta los saltos de línea del bot */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
     </style>
     
-    <!-- Bloque para añadir CSS o JS específico de una página -->
+    <!-- Bloque para scripts o estilos adicionales (como Chart.js) -->
     {% block head_extra %}{% endblock %}
 
 </head>
@@ -108,7 +113,7 @@
             <div>
                 <!-- Logo y Título -->
                 <a href="{{ url_for('index') }}" class="flex items-center space-x-3 text-gray-900 p-2 rounded-lg hover:bg-gray-100">
-                    <i class="fa-solid fa-chart-line h-8 w-8 text-blue-600"></i>
+                    <i class="fa-solid fa-chart-line fa-xl h-8 w-8 text-blue-600"></i>
                     <span class="text-2xl font-bold">ProgreSO</span>
                 </a>
                 
@@ -146,7 +151,7 @@
                         <i class="fa-solid fa-bullseye h-5 w-5 fa-fw"></i>
                         <span>Misiones</span>
                     </a>
-                    
+
                     <a href="{{ url_for('habitos') }}" 
                        class="flex items-center space-x-3 p-3 rounded-lg font-medium 
                               {% if request.endpoint == 'habitos' %}
@@ -154,10 +159,10 @@
                               {% else %}
                                   text-gray-600 hover:bg-gray-100 hover:text-gray-900
                               {% endif %}">
-                        <i class="fa-solid fa-arrows-spin h-5 w-5 fa-fw"></i>
+                        <i class="fa-solid fa-calendar-check h-5 w-5 fa-fw"></i>
                         <span>Hábitos</span>
                     </a>
-                    
+
                     <a href="{{ url_for('tienda') }}" 
                        class="flex items-center space-x-3 p-3 rounded-lg font-medium 
                               {% if request.endpoint == 'tienda' %}
@@ -168,7 +173,7 @@
                         <i class="fa-solid fa-store h-5 w-5 fa-fw"></i>
                         <span>Tienda</span>
                     </a>
-                    
+
                     <a href="{{ url_for('feed') }}" 
                        class="flex items-center space-x-3 p-3 rounded-lg font-medium 
                               {% if request.endpoint == 'feed' %}
@@ -198,14 +203,16 @@
                 
                 <!-- Barra de Vida (HP) -->
                 <div class="px-2 mb-3">
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Vida (HP)</label>
-                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                        <div class="h-2.5 rounded-full 
-                            {% if current_user.vida > 50 %} bg-green-500 
-                            {% elif current_user.vida > 20 %} bg-yellow-500 
-                            {% else %} bg-red-600 
-                            {% endif %}" 
-                            style="width: {{ current_user.vida }}%;">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-sm font-medium text-gray-700">Vida (HP)</span>
+                        <span class="text-sm font-bold {% if current_user.vida > 50 %}text-green-600{% elif current_user.vida > 20 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                            {{ current_user.vida }}%
+                        </span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="h-2 rounded-full transition-all duration-300 
+                            {% if current_user.vida > 50 %}bg-green-600{% elif current_user.vida > 20 %}bg-yellow-500{% else %}bg-red-600{% endif %}" 
+                             style="width: {{ current_user.vida }}%;">
                         </div>
                     </div>
                 </div>
@@ -213,19 +220,15 @@
                 <!-- Perfil de Usuario -->
                 <a href="{{ url_for('perfil') }}" 
                    class="flex items-center space-x-3 p-2 rounded-lg 
-                          {% if request.endpoint == 'perfil' %}
-                              bg-gray-100
-                          {% else %}
-                              hover:bg-gray-100
-                          {% endif %}">
+                          {% if request.endpoint == 'perfil' %}bg-gray-100{% else %}hover:bg-gray-100{% endif %}">
                     <i class="fa-solid fa-user h-8 w-8 rounded-full bg-blue-600 text-white p-2 flex items-center justify-center"></i>
-                    <span class="font-medium text-gray-800">{{ current_user.username }}</span>
+                    <span class="font-medium text-gray-900">{{ current_user.username }}</span>
                 </a>
                 
                 <!-- Cerrar Sesión -->
-                <a href="{{ url_for('logout') }}" class="flex items-center space-x-3 p-2 rounded-lg text-red-600 hover:bg-red-50 mt-2">
-                    <i class="fa-solid fa-arrow-right-from-bracket h-6 w-6 fa-fw"></i>
-                    <span class="font-medium">Cerrar Sesión</span>
+                <a href="{{ url_for('logout') }}" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-red-600 mt-2">
+                    <i class="fa-solid fa-arrow-right-from-bracket h-5 w-5 fa-fw"></i>
+                    <span>Cerrar Sesión</span>
                 </a>
             </div>
         </aside>
@@ -238,34 +241,34 @@
             <!-- Mensajes Flash (Notificaciones) -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    <!-- Contenedor de notificaciones -->
-                    <div class="fixed top-5 right-5 z-50 w-full max-w-sm">
+                    <div class="fixed top-5 right-5 p-4 w-full max-w-sm z-50">
                     {% for category, message in messages %}
                         <div class="p-4 rounded-lg shadow-lg mb-2 flex items-start space-x-3
-                            {% if category == 'danger' %} bg-red-100 border border-red-200 text-red-800
-                            {% elif category == 'success' %} bg-green-100 border border-green-200 text-green-800
-                            {% elif category == 'warning' %} bg-yellow-100 border border-yellow-200 text-yellow-800
-                            {% else %} bg-blue-100 border border-blue-200 text-blue-800
-                            {% endif %}"
-                            role="alert">
+                            {% if category == 'danger' or category == 'warning' %} bg-red-100 border border-red-200
+                            {% elif category == 'success' %} bg-green-100 border border-green-200
+                            {% else %} bg-blue-100 border border-blue-200
+                            {% endif %}">
                             
-                            <!-- Icono -->
+                            <!-- Icono del Flash -->
                             <div class="flex-shrink-0">
-                                {% if category == 'danger' %}
-                                <i class="fa-solid fa-circle-xmark"></i>
+                                {% if category == 'danger' or category == 'warning' %}
+                                <i class="fa-solid fa-circle-exclamation text-red-500"></i>
                                 {% elif category == 'success' %}
-                                <i class="fa-solid fa-circle-check"></i>
-                                {% elif category == 'warning' %}
-                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <i class="fa-solid fa-circle-check text-green-500"></i>
                                 {% else %}
-                                <i class="fa-solid fa-circle-info"></i>
+                                <i class="fa-solid fa-circle-info text-blue-500"></i>
                                 {% endif %}
                             </div>
-                            <!-- Mensaje -->
+                            <!-- Mensaje del Flash -->
                             <div class="flex-1">
-                                <p class="text-sm font-medium">{{ message }}</p>
+                                <p class="text-sm font-medium 
+                                    {% if category == 'danger' or category == 'warning' %} text-red-800
+                                    {% elif category == 'success' %} text-green-800
+                                    {% else %} text-blue-800
+                                    {% endif %}">
+                                    {{ message }}
+                                </p>
                             </div>
-                            <!-- Botón de cerrar (opcional) -->
                         </div>
                     {% endfor %}
                     </div>
@@ -276,7 +279,7 @@
             <h1 class="text-4xl font-bold text-gray-900 mb-6">{{ title }}</h1>
 
             <!-- Contenido Específico de la Página -->
-            <div classKA="max-w-7xl mx-auto">
+            <div class="max-w-7xl mx-auto">
                 {% block content %}{% endblock %}
             </div>
         </main>
@@ -331,11 +334,6 @@
 
             // Función para añadir un mensaje a la ventana
             function addMensajeAsistente(texto) {
-                // Limpiamos el mensaje de bienvenida si es el primero
-                if (mensajesDiv.children.length === 1 && mensajesDiv.children[0].textContent.includes("¡Hola!")) {
-                    mensajesDiv.innerHTML = '';
-                }
-
                 const msgEl = document.createElement('div');
                 msgEl.classList.add('mensaje-asistente');
                 msgEl.textContent = texto;
@@ -344,21 +342,26 @@
                 mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
             }
 
-            // Función para abrir/cerrar la ventana
-            function toggleVentana() {
-                ventanaAbierta = !ventanaAbierta;
-                if (ventanaAbierta) {
-                    ventana.classList.remove('hidden');
-                    burbuja.classList.add('hidden'); // Ocultar burbuja al abrir
-                    notificacion.classList.add('hidden'); // Ocultar punto rojo
-                } else {
-                    ventana.classList.add('hidden');
-                    burbuja.classList.remove('hidden');
-                }
+            // --- LÓGICA CORREGIDA ---
+            // Función para ABRIR la ventana
+            function abrirVentana() {
+                ventana.classList.remove('hidden');
+                burbuja.classList.add('hidden'); // Ocultar burbuja al abrir
+                notificacion.classList.add('hidden'); // Ocultar punto rojo
+                ventanaAbierta = true;
             }
 
-            burbuja.addEventListener('click', toggleVentana);
-            cerrarBtn.addEventListener('click', toggleVentana);
+            // Función para CERRAR la ventana
+            function cerrarVentana() {
+                ventana.classList.add('hidden');
+                burbuja.classList.remove('hidden'); // Mostrar burbuja al cerrar
+                ventanaAbierta = false;
+            }
+
+            burbuja.addEventListener('click', abrirVentana);
+            cerrarBtn.addEventListener('click', cerrarVentana);
+            // --- FIN DE LA CORRECCIÓN ---
+
 
             // 1. Cargar mensajes no leídos (reporte diario, etc.) al cargar la página
             async function cargarMensajesNoLeidos() {

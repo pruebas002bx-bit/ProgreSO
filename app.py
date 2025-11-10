@@ -46,8 +46,9 @@ except Exception as e:
 @app.template_filter('format_pesos')
 def format_pesos_filter(value):
     if value is None:
-        return "$ 0"
-    return f"$ {value:,.0f}".replace(",", ".") + " COP"
+        return "0"
+    # CORRECCIÓN: Se quita el "$" de aquí, ya que se añade en el HTML.
+    return f"{value:,.0f}".replace(",", ".")
 
 # === Modelos de la Base de Datos ===
 
@@ -227,7 +228,8 @@ class ShareLogroForm(FlaskForm):
     submit = SubmitField('Publicar')
 
 class ConfiguracionForm(FlaskForm):
-    asistente_persona = SelectField('Personalidad del Asistente', coerce=str, validators=[DataRequired()])
+    # CORRECCIÓN: Cambiado de SelectField a RadioField para coincidir con el HTML
+    asistente_persona = RadioField('Personalidad del Asistente', coerce=str, validators=[DataRequired()])
     submit = SubmitField('Guardar Cambios')
 
 
@@ -616,7 +618,7 @@ def feed():
 def configuracion():
     """Página para configurar la personalidad del Asistente de IA."""
     form = ConfiguracionForm()
-    # Llenamos las opciones del SelectField desde la base de datos
+    # Llenamos las opciones del RadioField desde la base de datos
     form.asistente_persona.choices = [(p.nombre, p.nombre) for p in AsistentePersonalidad.query.all()]
     
     if form.validate_on_submit():
@@ -779,7 +781,7 @@ def get_gemini_response(prompt_text):
         app.logger.error("GEMINI_API_KEY no está configurada.")
         return "Error: La API de IA no está configurada."
     try:
-        model = genai.GenerativeModel(model_name="gemini-2.5-flash")
+        model = genai.GenerativeModel(model_name="gemini-1.5-flash")
         response = model.generate_content(prompt_text)
         return response.text
     except Exception as e:
@@ -798,7 +800,7 @@ def generate_ai_setup(user):
 
     try:
         model = genai.GenerativeModel(
-            model_name="gemini-2.5-flash", # Usamos el modelo Flash
+            model_name="gemini-1.5-flash", # Usamos el modelo Flash
             generation_config={"response_mime_type": "application/json"} # Pedimos JSON
         )
 
