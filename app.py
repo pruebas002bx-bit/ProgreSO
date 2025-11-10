@@ -781,7 +781,7 @@ def get_gemini_response(prompt_text):
         app.logger.error("GEMINI_API_KEY no está configurada.")
         return "Error: La API de IA no está configurada."
     try:
-        model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+        model = genai.GenerativeModel(model_name="gemini-2.5-flash")
         response = model.generate_content(prompt_text)
         return response.text
     except Exception as e:
@@ -800,7 +800,7 @@ def generate_ai_setup(user):
 
     try:
         model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash", # Usamos el modelo Flash
+            model_name="gemini-2.5-flash", # Usamos el modelo Flash
             generation_config={"response_mime_type": "application/json"} # Pedimos JSON
         )
 
