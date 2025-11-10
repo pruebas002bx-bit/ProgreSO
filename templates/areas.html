@@ -1,121 +1,77 @@
 {% extends 'base.html' %}
 
-<!-- 
-Este bloque 'head_extra' es un espacio opcional en 'base.html' 
-para añadir estilos o scripts específicos para esta página.
-En este caso, definimos los iconos para las Áreas de Vida.
--->
-{% block head_extra %}
-<style>
-    /* Definimos los estilos de los iconos para las áreas.
-    Usamos 'mask' con un 'background-color' para que el SVG
-    pueda ser coloreado dinámicamente.
-    */
-    [data-icon] {
-        width: 1.5rem; /* 24px */
-        height: 1.5rem; /* 24px */
-        -webkit-mask-size: cover;
-        mask-size: cover;
-    }
-    
-    /* Color del icono */
-    .area-icon {
-        background-color: #1d4ed8; /* blue-700 */
-    }
-    .area-icon-white {
-        background-color: #ffffff; /* blanco */
-    }
-
-    [data-icon="icono-salud"] {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z' /%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z' /%3E%3C/svg%3E");
-    }
-    [data-icon="icono-finanzas"] {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9H3.75M2.25 6c.075.015.15.03.225.046M2.25 6a.75.75 0 0 0-.75.75v12a.75.75 0 0 0 .75.75h.75m0-13.5h.008v.008H3m0 0v.008h.008v-.008H3Z' /%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9H3.75M2.25 6c.075.015.15.03.225.046M2.25 6a.75.75 0 0 0-.75.75v12a.75.75 0 0 0 .75.75h.75m0-13.5h.008v.008H3m0 0v.008h.008v-.008H3Z' /%3E%3C/svg%3E");
-    }
-    [data-icon="icono-trabajo"] {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M20.25 14.15v4.07a2.25 2.25 0 0 1-2.25 2.25h-13.5A2.25 2.25 0 0 1 2.25 18.22V14.15M15.75 13.5v.75c0 .414-.336.75-.75.75h-3a.75.75 0 0 1-.75-.75v-.75m5.25 0V7.875c0-.621-.504-1.125-1.125-1.125h-3.75c-.621 0-1.125.504-1.125 1.125v5.625m5.25 0h-4.5M7.5 13.5v.75c0 .414.336.75.75.75h3a.75.75 0 0 0 .75-.75v-.75m-5.25 0V7.875c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125v5.625m-5.25 0h4.5' /%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M20.25 14.15v4.07a2.25 2.25 0 0 1-2.25 2.25h-13.5A2.25 2.25 0 0 1 2.25 18.22V14.15M15.75 13.5v.75c0 .414-.336.75-.75.75h-3a.75.75 0 0 1-.75-.75v-.75m5.25 0V7.875c0-.621-.504-1.125-1.125-1.125h-3.75c-.621 0-1.125.504-1.125 1.125v5.625m5.25 0h-4.5M7.5 13.5v.75c0 .414.336.75.75.75h3a.75.75 0 0 0 .75-.75v-.75m-5.25 0V7.875c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125v5.625m-5.25 0h4.5' /%3E%3C/svg%3E");
-    }
-    [data-icon="icono-estudio"] {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25' /%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25' /%3E%3C/svg%3E");
-    }
-    [data-icon="icono-personal"] {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z' /%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z' /%3E%3C/svg%3E");
-    }
-    [data-icon="icono-social"] {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666l-.014.123m-5.86-.031a11.959 11.959 0 0 1-2.599 0m5.858 0Abc.m0 0a11.959 11.959 0 0 0-2.599 0m2.599 0A11.959 11.959 0 0 0 9 18.73m0 0a11.959 11.959 0 0 0-2.599 0m2.599 0A11.959 11.959 0 0 0 3.741 18.73m0 0a9.094 9.094 0 0 0-3.741-.479 3 3 0 0 0 4.682 2.72M3.741 18.253v.031c0 .225.012.447.037.666l.014.123m-5.86-.031a11.959 11.959 0 0 1 2.599 0m-5.858 0a11.959 11.959 0 0 0 2.599 0m-2.599 0A11.959 11.959 0 0 0 9 18.73m0 0a11.959 11.959 0 0 0 2.599 0m-2.599 0A11.959 11.959 0 0 0 15 18.73m0 0a11.959 11.959 0 0 0 2.599 0M9 12.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm12 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z' /%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666l-.014.123m-5.86-.031a11.959 11.959 0 0 1-2.599 0m5.858 0Abc.m0 0a11.959 11.959 0 0 0-2.599 0m2.599 0A11.959 11.959 0 0 0 9 18.73m0 0a11.959 11.959 0 0 0-2.599 0m2.599 0A11.959 11.959 0 0 0 3.741 18.73m0 0a9.094 9.094 0 0 0-3.741-.479 3 3 0 0 0 4.682 2.72M3.741 18.253v.031c0 .225.012.447.037.666l.014.123m-5.86-.031a11.959 11.959 0 0 1 2.599 0m-5.858 0a11.959 11.959 0 0 0 2.599 0m-2.599 0A11.959 11.959 0 0 0 9 18.73m0 0a11.959 11.959 0 0 0 2.599 0m-2.599 0A11.959 11.959 0 0 0 15 18.73m0 0a11.959 11.959 0 0 0 2.599 0M9 12.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm12 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z' /%3E%3C/svg%3E");
-    }
-    [data-icon="icono-default"] {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.31h5.418a.563.563 0 0 1 .372.956l-4.386 3.176a.563.563 0 0 0-.182.557l1.658 5.36a.562.562 0 0 1-.84.62l-4.74-3.483a.562.562 0 0 0-.668 0l-4.74 3.483a.562.562 0 0 1-.84-.62l1.658-5.36a.562.562 0 0 0-.182-.557l-4.386-3.176a.563.563 0 0 1 .372-.956h5.418a.563.563 0 0 0 .475-.31L11.48 3.5Z' /%3E%3C/svg%3E");
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.31h5.418a.563.563 0 0 1 .372.956l-4.386 3.176a.563.563 0 0 0-.182.557l1.658 5.36a.562.562 0 0 1-.84.62l-4.74-3.483a.562.562 0 0 0-.668 0l-4.74 3.483a.562.562 0 0 1-.84-.62l1.658-5.36a.562.562 0 0 0-.182-.557l-4.386-3.176a.563.563 0 0 1 .372-.956h5.418a.563.563 0 0 0 .475-.31L11.48 3.5Z' /%3E%3C/svg%3E");
-    }
-
-</style>
-{% endblock %}
-
 {% block content %}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     
-    <!-- Columna Izquierda: Formulario -->
+    <!-- Columna del Formulario -->
     <div class="lg:col-span-1">
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-xl font-semibold mb-4 text-gray-900">Crear Nueva Área</h3>
-            <p class="text-gray-600 mb-6">Define las categorías principales de tu vida (ej. Salud, Finanzas, Estudio).</p>
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Crear Nueva Área</h2>
             <form method="POST" action="{{ url_for('areas') }}" class="space-y-4">
                 {{ form.hidden_tag() }}
                 
                 <!-- Nombre del Área -->
                 <div>
                     {{ form.nombre.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                    {{ form.nombre(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500", placeholder="Ej. Finanzas") }}
+                    {{ form.nombre(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500", placeholder="Ej. Salud y Bienestar") }}
                     {% for error in form.nombre.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
                 </div>
                 
-                <!-- Selección de Icono -->
+                <!-- Selección de Icono (CORREGIDO) -->
                 <div>
-                    {{ form.icono.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                    {{ form.icono(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500") }}
-                    {% for error in form.icono.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
+                    {{ form.icono_svg.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+                    {{ form.icono_svg(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500") }}
+                    {% for error in form.icono_svg.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
                 </div>
 
                 <!-- Botón de Enviar -->
-                <div class="pt-2">
-                    {{ form.submit(class="w-full py-2 px-6 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer") }}
+                <div>
+                    {{ form.submit(class="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer") }}
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Columna Derecha: Lista de Áreas -->
+    <!-- Columna de la Lista de Áreas -->
     <div class="lg:col-span-2">
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-xl font-semibold mb-4 text-gray-900">Mis Áreas Actuales</h3>
+        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Mis Áreas de Vida</h2>
             <div class="space-y-4">
-                {% for area in areas %}
-                <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-blue-100 p-2 rounded-lg">
-                            <div data-icon="{{ area.icono_svg }}" class="area-icon"></div>
+                {% if areas %}
+                    {% for area in areas %}
+                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div class="flex items-center space-x-4">
+                            <!-- Icono dinámico -->
+                            <span class="flex items-center justify-center h-10 w-10 rounded-full bg-blue-100 text-blue-600">
+                                {% if area.icono_svg == 'icono-salud' %}
+                                    <i class="fa-solid fa-heart-pulse"></i>
+                                {% elif area.icono_svg == 'icono-dinero' %}
+                                    <i class="fa-solid fa-sack-dollar"></i>
+                                {% elif area.icono_svg == 'icono-carrera' %}
+                                    <i class="fa-solid fa-briefcase"></i>
+                                {% elif area.icono_svg == 'icono-estudio' %}
+                                    <i class="fa-solid fa-book-open"></i>
+                                {% elif area.icono_svg == 'icono-mente' %}
+                                    <i class="fa-solid fa-brain"></i>
+                                {% elif area.icono_svg == 'icono-social' %}
+                                    <i class="fa-solid fa-users"></i>
+                                {% elif area.icono_svg == 'icono-hobby' %}
+                                    <i class="fa-solid fa-guitar"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-star"></i>
+                                {% endif %}
+                            </span>
+                            <span class="text-lg font-medium text-gray-900">{{ area.nombre }}</span>
                         </div>
-                        <span class="font-medium text-gray-800 text-lg">{{ area.nombre }}</span>
-                    </div>
-                    <!-- Botón de Borrar (Opcional, requiere crear la ruta) -->
-                    <!-- 
-                    <form action="#" method="POST">
-                        <button type="submit" class="text-red-500 hover:text-red-700 text-sm font-medium">
-                            Borrar
+                        <!-- Botón de Eliminar (funcionalidad futura) -->
+                        <button class="text-gray-400 hover:text-red-500">
+                            <i class="fa-solid fa-trash-can"></i>
                         </button>
-                    </form>
-                    -->
-                </div>
+                    </div>
+                    {% endfor %}
                 {% else %}
-                <p class="text-gray-600 text-center py-4">Aún no has creado ninguna área. ¡Usa el formulario para empezar!</p>
-                {% endfor %}
+                    <p class="text-gray-500 text-center">Aún no has creado ninguna Área de Vida. ¡Crea una en el formulario para empezar!</p>
+                {% endif %}
             </div>
         </div>
     </div>
