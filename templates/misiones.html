@@ -1,181 +1,80 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- MODIFICADO: Layout ahora es de 1 columna -->
+<div class="grid grid-cols-1 lg:grid-cols-1 gap-8">
     
-    <!-- Columna Izquierda: Formulario para Nueva Misión -->
+    <!-- Columna Única: Lista de Misiones -->
     <div class="lg:col-span-1">
         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-xl font-semibold mb-4 text-gray-900">Crear Nueva Misión</h3>
-            <form method="POST" action="{{ url_for('misiones') }}" class="space-y-4">
-                {{ form.hidden_tag() }}
-                
-                <!-- Título -->
-                <div>
-                    {{ form.titulo.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                    {{ form.titulo(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500", placeholder="Ej. Terminar el reporte trimestral") }}
-                </div>
-
-                <!-- Área de Vida (Corregido) -->
-                <div>
-                    {{ form.area_id.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                    {{ form.area_id(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500") }}
-                </div>
-
-                <!-- Plazo (NUEVO) -->
-                <div>
-                    {{ form.plazo.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                    {{ form.plazo(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500", type="date") }}
-                </div>
-
-                <!-- Recompensas (Grid) -->
-                <div class="grid grid-cols-2 gap-4">
-                    <!-- Recompensa XP -->
-                    <div>
-                        {{ form.recompensa_xp.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                        {{ form.recompensa_xp(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500") }}
-                    </div>
-                    <!-- Recompensa Pesos -->
-                    <div>
-                        {{ form.recompensa_pesos.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                        {{ form.recompensa_pesos(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500") }}
-                    </div>
-                </div>
-
-                <!-- Botón de Enviar -->
-                <div class="pt-2">
-                    {{ form.submit(class="w-full py-2 px-6 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer") }}
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Columna Derecha: Lista de Misiones -->
-    <div class="lg:col-span-2">
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-xl font-semibold mb-4 text-gray-900">Mis Misiones Actuales</h3>
+            <h3 class="text-xl font-semibold mb-4 text-gray-900">Mis Misiones Diarias</h3>
+            <p class="text-gray-600 mb-6">La IA genera una nueva misión cada día a las 06:00. ¡Complétala antes de las 18:00!</p>
+            
             <div id="mision-lista" class="space-y-4">
-                {% for mision in misiones %}
-                <div id="mision-card-{{ mision.id }}" class="{% if mision.completada %}bg-gray-100 opacity-70{% else %}bg-white{% endif %} border border-gray-200 p-4 rounded-lg">
-                    <!-- Información Principal de la Misión -->
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p class="text-lg font-semibold {% if mision.completada %}text-gray-500 line-through{% else %}text-gray-900{% endif %}">{{ mision.titulo }}</p>
-                            <!-- Info (Área, Recompensas, Plazo) -->
-                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
-                                {% if mision.area %}
-                                <span class="text-xs font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{{ mision.area.nombre }}</span>
-                                {% endif %}
-                                <span class="{% if mision.completada %}text-gray-500{% else %}text-green-600{% endif %} font-medium text-sm">
-                                    <i class="fa-solid fa-star fa-fw"></i> +{{ mision.recompensa_xp }} XP
-                                </span>
-                                <span class="{% if mision.completada %}text-gray-500{% else %}text-green-600{% endif %} font-medium text-sm">
-                                    <i class="fa-solid fa-money-bill-wave fa-fw"></i> {{ mision.recompensa_pesos | format_pesos }}
-                                </span>
-                                <!-- Lógica de Plazo -->
-                                {% if mision.plazo %}
-                                    {% set hoy = (datetime.utcnow() + timedelta(days=-1)).date() %}
-                                    {% set plazo_fecha = mision.plazo.date() %}
-                                    <span class="font-medium text-sm {% if not mision.completada and plazo_fecha < hoy %}text-red-600{% else %}text-gray-500{% endif %}">
-                                        <i class="fa-solid fa-calendar-day fa-fw"></i> 
-                                        Plazo: {{ mision.plazo.strftime('%d-%m-%Y') }}
-                                        {% if not mision.completada and plazo_fecha < hoy %}(¡Vencida!){% endif %}
+                {% if misiones %}
+                    {% for mision in misiones %}
+                    <div id="mision-card-{{ mision.id }}" class="{% if mision.completada %}bg-gray-100 opacity-70{% else %}bg-white{% endif %} border border-gray-200 p-4 rounded-lg">
+                        <!-- Información Principal de la Misión -->
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-lg font-semibold {% if mision.completada %}text-gray-500 line-through{% else %}text-gray-900{% endif %}">{{ mision.titulo }}</p>
+                                <!-- Info (Área, Recompensas, Plazo) -->
+                                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
+                                    {% if mision.area %}
+                                    <span class="text-xs font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{{ mision.area.nombre }}</span>
+                                    {% endif %}
+                                    <span class="{% if mision.completada %}text-gray-500{% else %}text-green-600{% endif %} font-medium text-sm">
+                                        <i class="fa-solid fa-star fa-fw"></i> +{{ mision.recompensa_xp }} XP
                                     </span>
+                                    <span class="{% if mision.completada %}text-gray-500{% else %}text-green-600{% endif %} font-medium text-sm">
+                                        <i class="fa-solid fa-money-bill-wave fa-fw"></i> {{ mision.recompensa_pesos | format_pesos }}
+                                    </span>
+                                    <!-- Lógica de Plazo -->
+                                    {% if mision.plazo %}
+                                        {% set hoy = (datetime.utcnow().date()) %}
+                                        {% set plazo_fecha = mision.plazo.date() %}
+                                        <span class="font-medium text-sm {% if not mision.completada and mision.plazo < datetime.utcnow() %}text-red-600{% else %}text-gray-500{% endif %}">
+                                            <i class="fa-solid fa-calendar-day fa-fw"></i> 
+                                            Plazo: {{ mision.plazo.strftime('%d-%m-%Y a las %H:%M') }}
+                                            {% if not mision.completada and mision.plazo < datetime.utcnow() %}(¡Fallada!){% endif %}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <!-- Botón de Completar Misión -->
+                            <div class="flex-shrink-0 ml-4">
+                                {% if mision.completada %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                    <i class="fa-solid fa-check mr-2"></i>Completada
+                                </span>
+                                {% else %}
+                                <button id="btn-completar-mision-{{ mision.id }}" 
+                                        onclick="completarMision({{ mision.id }})" 
+                                        class="bg-green-600 text-white font-medium py-1 px-3 rounded-lg text-sm hover:bg-green-700">
+                                    Completar
+                                </button>
                                 {% endif %}
                             </div>
                         </div>
-                        <!-- Botón de Completar Misión -->
-                        <div class="flex-shrink-0 ml-4">
-                            {% if mision.completada %}
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                <i class="fa-solid fa-check mr-2"></i>Completada
-                            </span>
-                            {% else %}
-                            <button id="btn-completar-mision-{{ mision.id }}" 
-                                    onclick="completarMision({{ mision.id }})" 
-                                    class="bg-green-600 text-white font-medium py-1 px-3 rounded-lg text-sm hover:bg-green-700 disabled:bg-gray-300" 
-                                    title="Completa todos los pendientes para activar">
-                                Completar
-                            </button>
-                            {% endif %}
-                        </div>
-                    </div>
 
-                    <!-- Lista de Pendientes (Sub-tareas) -->
-                    {% if mision.pendientes %}
-                    <div class="mt-4 border-t border-gray-200 pt-3">
-                        <h5 class="text-sm font-medium text-gray-600 mb-2">Pendientes:</h5>
-                        <ul id="pendientes-lista-{{ mision.id }}" class="space-y-2">
-                            {% for pendiente in mision.pendientes %}
-                            <li class="flex items-center space-x-2">
-                                <!-- Checkbox Dinámico -->
-                                <input type="checkbox" 
-                                       id="pendiente-{{ pendiente.id }}"
-                                       onclick="togglePendiente({{ pendiente.id }}, {{ mision.id }})"
-                                       class="h-4 w-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300" 
-                                       {% if pendiente.done %}checked{% endif %}
-                                       {% if mision.completada %}disabled{% endif %}>
-                                <!-- Texto del Pendiente -->
-                                <label for="pendiente-{{ pendiente.id }}" class="{% if pendiente.done %}text-gray-500 line-through{% else %}text-gray-700{% endif %} {% if not mision.completada %}cursor-pointer{% endif %}">
-                                    {{ pendiente.descripcion }}
-                                </label>
-                            </li>
-                            {% endfor %}
-                        </ul>
+                        <!-- ELIMINADO: La sección de Pendientes ya no existe -->
+                        
                     </div>
-                    {% endif %}
-                </div>
+                    {% endfor %}
                 {% else %}
                 <div class="text-center py-4">
-                    <p class="text-gray-600">No tienes misiones. ¡Crea una para empezar!</p>
-                    {% if not current_user.areas %}
-                    <p class="text-gray-500 text-sm mt-2">Primero, asegúrate de <a href="{{ url_for('areas') }}" class="text-blue-600 hover:underline">crear un Área de Vida</a> para asignarle tu misión.</p>
-                    {% endif %}
+                    <p class="text-gray-600">No tienes misiones. ¡Espera a mañana a las 06:00 para tu próxima misión de IA!</p>
                 </div>
-                {% endfor %}
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
 <!-- =================================== -->
-<!-- JavaScript para Misiones     -->
+<!-- JavaScript para Misiones (Simplificado) -->
 <!-- =================================== -->
 <script>
-    // Función para "chulear" un pendiente (sub-tarea)
-    async function togglePendiente(pendienteId, misionId) {
-        try {
-            const response = await fetch(`/toggle_pendiente/${pendienteId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            
-            if (!response.ok) throw new Error('Error en el servidor');
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                // Actualizar UI del pendiente (texto tachado)
-                const label = document.querySelector(`label[for="pendiente-${pendienteId}"]`);
-                label.classList.toggle('text-gray-500', data.done_status);
-                label.classList.toggle('line-through', data.done_status);
-                
-                // Activar o desactivar el botón "Completar Misión"
-                const botonCompletar = document.getElementById(`btn-completar-mision-${misionId}`);
-                if (botonCompletar) {
-                    botonCompletar.disabled = !data.mision_lista;
-                    if(data.mision_lista) {
-                        botonCompletar.title = "¡Listo para completar!";
-                    } else {
-                        botonCompletar.title = "Completa todos los pendientes para activar";
-                    }
-                }
-            }
-        } catch (e) {
-            console.error("Error al marcar pendiente:", e);
-        }
-    }
-
     // Función para "Completar Misión"
     async function completarMision(misionId) {
         try {
@@ -194,7 +93,6 @@
             
             if (data.success) {
                 // 1. Mostrar notificación (simulada)
-                // En una app real, podrías usar el sistema de flash con JS
                 alert(data.mensaje); 
 
                 // 2. Actualizar la tarjeta de la misión
@@ -207,42 +105,10 @@
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                         <i class="fa-solid fa-check mr-2"></i>Completada
                     </span>`;
-                
-                document.querySelectorAll(`#pendientes-lista-${misionId} input[type=checkbox]`).forEach(cb => {
-                    cb.disabled = true;
-                });
-
-                // 4. (Opcional) Actualizar las stats en la barra lateral (requeriría IDs en base.html)
-                // ej. document.getElementById('user-xp').textContent = data.stats_actualizados.xp;
             }
         } catch (e) {
             console.error("Error al completar misión:", e);
         }
     }
-
-    // Al cargar la página, revisamos qué botones de "Completar" deben estar activos
-    document.addEventListener('DOMContentLoaded', function() {
-        const misionList = document.getElementById('mision-lista');
-        if (!misionList) return;
-
-        misionList.querySelectorAll('div[id^="mision-card-"]').forEach(misionCard => {
-            const misionId = misionCard.id.split('-')[2];
-            const botonCompletar = document.getElementById(`btn-completar-mision-${misionId}`);
-            
-            // Si el botón existe (es decir, la misión no está completa)
-            if (botonCompletar) {
-                const pendientes = misionCard.querySelectorAll(`#pendientes-lista-${misionId} input[type=checkbox]`);
-                let todosCompletos = true;
-                if (pendientes.length > 0) {
-                    pendientes.forEach(cb => {
-                        if (!cb.checked) {
-                            todosCompletos = false;
-                        }
-                    });
-                }
-                botonCompletar.disabled = !todosCompletos;
-            }
-        });
-    });
 </script>
 {% endblock %}
