@@ -30,15 +30,12 @@
         main::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; } /* gray-300 */
         main::-webkit-scrollbar-thumb:hover { background: #94a3b8; } /* gray-400 */
 
-        /* Estilos del Asistente de IA (Bot) */
-        #asistente-chat-container {
+        /* --- NUEVOS ESTILOS PARA EL ASISTENTE (SLIDE-OUT) --- */
+        #asistente-burbuja {
             position: fixed;
             bottom: 1.5rem; /* 24px */
             right: 1.5rem; /* 24px */
             z-index: 50;
-            width: 350px;
-        }
-        #asistente-burbuja {
             width: 3.5rem; /* 56px */
             height: 3.5rem; /* 56px */
             border-radius: 9999px;
@@ -55,18 +52,30 @@
             background-color: #1d4ed8; /* blue-700 */
             transform: scale(1.1);
         }
+        
+        /* La nueva ventana deslizante */
         #asistente-ventana {
-            width: 100%;
-            height: 400px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 380px; /* Ancho del panel */
+            max-width: 90vw;
+            z-index: 100; /* Por encima de todo */
             background-color: white;
-            border-radius: 0.75rem; /* 12px */
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            border: 1px solid #e5e7eb; /* gray-200 */
+            border-left: 1px solid #e5e7eb; /* gray-200 */
+            box-shadow: -10px 0 25px -5px rgba(0, 0, 0, 0.1), -5px 0 10px -5px rgba(0, 0, 0, 0.04);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            transition: all 0.3s ease-in-out;
+            /* Lógica de transición */
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%); /* Oculto por defecto */
         }
+        #asistente-ventana.abierto {
+            transform: translateX(0); /* Visible */
+        }
+
         #asistente-ventana-header {
             background-color: #f9fafb; /* gray-50 */
             padding: 0.75rem 1rem;
@@ -241,8 +250,10 @@
             <!-- Mensajes Flash (Notificaciones) -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
+                    <!-- Contenedor de Flashes -->
                     <div class="fixed top-5 right-5 p-4 w-full max-w-sm z-50">
                     {% for category, message in messages %}
+                        <!-- Mensaje Individual -->
                         <div class="p-4 rounded-lg shadow-lg mb-2 flex items-start space-x-3
                             {% if category == 'danger' or category == 'warning' %} bg-red-100 border border-red-200
                             {% elif category == 'success' %} bg-green-100 border border-green-200
@@ -260,7 +271,7 @@
                                 {% endif %}
                             </div>
                             <!-- Mensaje del Flash -->
-                            <div class="flex-1">
+                            <div classs="flex-1">
                                 <p class="text-sm font-medium 
                                     {% if category == 'danger' or category == 'warning' %} text-red-800
                                     {% elif category == 'success' %} text-green-800
@@ -286,29 +297,31 @@
     </div>
 
     <!-- =================================== -->
-    <!-- Asistente (Chat-bot) UI             -->
+    <!-- Asistente (Chat-bot) UI (Slide-Out) -->
     <!-- =================================== -->
-    <div id="asistente-chat-container">
-        <!-- Ventana de Chat (inicialmente oculta) -->
-        <div id="asistente-ventana" class="hidden">
-            <div id="asistente-ventana-header">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-robot text-blue-600"></i>
-                    <span class="font-semibold text-gray-900">Tu Asistente</span>
-                </div>
-                <button id="asistente-cerrar-btn" class="text-gray-400 hover:text-gray-600">
-                    <i class="fa-solid fa-times h-5 w-5"></i>
-                </button>
+    
+    <!-- Ventana de Chat (Panel deslizante) -->
+    <div id="asistente-ventana"> <!-- Estilos 'abierto' se aplican aquí -->
+        <div id="asistente-ventana-header">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-robot text-blue-600"></i>
+                <span class="font-semibold text-gray-900">Tu Asistente</span>
             </div>
-            <div id="asistente-mensajes">
-                <!-- Los mensajes se cargarán aquí -->
-                <div class="mensaje-asistente">
-                    ¡Hola! Estoy aquí para ayudarte a revisar tu progreso.
-                </div>
+            <button id="asistente-cerrar-btn" class="text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-times h-5 w-5"></i>
+            </button>
+        </div>
+        <div id="asistente-mensajes">
+            <!-- Los mensajes se cargarán aquí -->
+            <div class="mensaje-asistente">
+                ¡Hola! Estoy aquí para ayudarte a revisar tu progreso.
             </div>
         </div>
+    </div>
 
-        <!-- Burbuja para Abrir/Cerrar Chat -->
+    <!-- Contenedor de la Burbuja (Click para abrir) -->
+    <div id="asistente-chat-container">
+        <!-- Burbuja para Abrir Chat -->
         <button id="asistente-burbuja">
             <i id="asistente-icono-burbuja" class="fa-solid fa-robot fa-lg"></i>
             <span id="asistente-notificacion" class="hidden absolute top-0 right-0 h-3 w-3 bg-red-500 rounded-full border-2 border-white"></span>
@@ -330,7 +343,7 @@
             // Prevenimos que se ejecute en páginas de login/registro
             if (!burbuja) return;
 
-            let ventanaAbierta = false;
+            let ventanaAbierta = false; // El estado se maneja en JS
 
             // Función para añadir un mensaje a la ventana
             function addMensajeAsistente(texto) {
@@ -345,16 +358,16 @@
             // --- LÓGICA CORREGIDA ---
             // Función para ABRIR la ventana
             function abrirVentana() {
-                ventana.classList.remove('hidden');
-                burbuja.classList.add('hidden'); // Ocultar burbuja al abrir
-                notificacion.classList.add('hidden'); // Ocultar punto rojo
+                if (ventanaAbierta) return;
+                ventana.classList.add('abierto'); // Aplica 'transform: translateX(0)'
                 ventanaAbierta = true;
+                notificacion.classList.add('hidden'); // Ocultar punto rojo al abrir
             }
 
             // Función para CERRAR la ventana
             function cerrarVentana() {
-                ventana.classList.add('hidden');
-                burbuja.classList.remove('hidden'); // Mostrar burbuja al cerrar
+                if (!ventanaAbierta) return;
+                ventana.classList.remove('abierto'); // Aplica 'transform: translateX(100%)'
                 ventanaAbierta = false;
             }
 
