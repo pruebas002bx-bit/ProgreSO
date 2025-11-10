@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProgreSO - Iniciar Sesión</title>
+    <title>ProgreSO - Registrarse (Paso 1)</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,8 +29,11 @@
                 <span class="text-3xl font-bold">ProgreSO</span>
             </a>
             <h2 class="mt-6 text-center text-3xl font-bold text-gray-900">
-                Inicia sesión en tu cuenta
+                Crea tu cuenta
             </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                Paso 1 de 3: Información básica
+            </p>
         </div>
 
         <!-- Mensajes Flash -->
@@ -48,35 +51,43 @@
             {% endif %}
         {% endwith %}
 
-        <!-- Formulario de Login -->
-        <form class="mt-8 space-y-6 bg-white p-8 rounded-xl shadow-lg border border-gray-200" method="POST" action="{{ url_for('login') }}">
+        <!-- Formulario de Registro (Paso 1) -->
+        <form class="mt-8 space-y-4 bg-white p-8 rounded-xl shadow-lg border border-gray-200" method="POST" action="{{ url_for('register_step_1') }}">
             {{ form.hidden_tag() }} <!-- CSRF Token -->
             
-            <!-- Email -->
+            <div>
+                {{ form.username.label(class="block text-sm font-medium text-gray-700") }}
+                {{ form.username(class="mt-1 block w-full px-3 py-3 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="Tu nombre de jugador") }}
+                {% for error in form.username.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
+            </div>
+            
             <div>
                 {{ form.email.label(class="block text-sm font-medium text-gray-700") }}
                 {{ form.email(class="mt-1 block w-full px-3 py-3 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="tu@correo.com") }}
                 {% for error in form.email.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
             </div>
 
-            <!-- Contraseña -->
             <div>
                 {{ form.password.label(class="block text-sm font-medium text-gray-700") }}
-                {{ form.password(class="mt-1 block w-full px-3 py-3 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="Tu contraseña") }}
+                {{ form.password(class="mt-1 block w-full px-3 py-3 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="Mínimo 6 caracteres") }}
                 {% for error in form.password.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
             </div>
 
-            <!-- Botón de Enviar -->
+            <div>
+                {{ form.confirm_password.label(class="block text-sm font-medium text-gray-700") }}
+                {{ form.confirm_password(class="mt-1 block w-full px-3 py-3 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="Confirma tu contraseña") }}
+                {% for error in form.confirm_password.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
+            </div>
+
             <div>
                 {{ form.submit(class="mt-4 group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer shadow-sm") }}
             </div>
         </form>
         
-        <!-- Enlace a Registro (CORREGIDO) -->
         <p class="text-center text-sm text-gray-600">
-            ¿No tienes cuenta?
-            <a href="{{ url_for('register_step_1') }}" class="font-medium text-blue-600 hover:text-blue-500">
-                Regístrate aquí
+            ¿Ya tienes cuenta?
+            <a href="{{ url_for('login') }}" class="font-medium text-blue-600 hover:text-blue-500">
+                Inicia sesión aquí
             </a>
         </p>
     </div>

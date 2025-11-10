@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- 
+    Overlay de Carga (Spinner)
+    Este div está oculto por defecto (clase 'hidden').
+    El script al final del archivo lo mostrará cuando se envíe el formulario.
+-->
+<div id="loading-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75">
+    <div class="flex flex-col items-center">
+        <!-- Icono de Spinner de Font Awesome -->
+        <i class="fa-solid fa-spinner fa-spin fa-3x text-white"></i>
+        <p class="mt-4 text-white text-lg font-medium">Generando tu plan personalizado...</p>
+        <p class="text-gray-300">Esto puede tardar unos segundos.</p>
+    </div>
+</div>
+
+
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+        
+        <!-- Encabezado -->
+        <div class="text-center">
+            <!-- Usamos un icono de Font Awesome que viene de base.html -->
+            <i class="fa-solid fa-rocket fa-3x text-blue-600"></i>
+            <h2 class="mt-4 text-3xl font-bold text-gray-900">
+                ¡Ya casi terminamos!
+            </h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Paso 3 de 3: Definición de Metas
+            </p>
+            <p class="mt-1 text-sm text-gray-500">
+                Describe tus objetivos para que la IA pueda crear tus misiones y hábitos.
+            </p>
+        </div>
+
+        <!-- Mensajes Flash (si los hubiera) -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mt-6">
+                {% for category, message in messages %}
+                    <div class="p-4 rounded-lg 
+                        {% if category == 'danger' %} bg-red-100 text-red-700 
+                        {% elif category == 'warning' %} bg-yellow-100 text-yellow-700
+                        {% else %} bg-blue-100 text-blue-700 
+                        {% endif %} text-center">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Formulario de Registro (Paso 3) -->
+        <form id="register-form-step3" class="mt-8 space-y-6" method="POST" action="{{ url_for('register_step_3') }}">
+            {{ form.hidden_tag() }} <!-- CSRF Token -->
+            
+            <!-- Metas Personales -->
+            <div>
+                {{ form.metas_personales.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+                {{ form.metas_personales(class="w-full h-40 px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500", placeholder="Ej. Quiero ser más organizado, comer más saludable, aprender a tocar guitarra, mejorar mi relación con mi familia...") }}
+                <p class="text-xs text-gray-500 mt-1">¿Qué quieres lograr en tu vida personal?</p>
+                {% for error in form.metas_personales.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
+            </div>
+
+            <!-- Metas Profesionales -->
+            <div>
+                {{ form.metas_profesionales.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+                {{ form.metas_profesionales(class="w-full h-40 px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500", placeholder="Ej. Conseguir un ascenso, aprender a programar en Python, terminar mi tesis, encontrar un nuevo trabajo, ser más productivo...") }}
+                <p class="text-xs text-gray-500 mt-1">¿Cuáles son tus objetivos de carrera o estudio?</p>
+                {% for error in form.metas_profesionales.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
+            </div>
+
+            <!-- Botón de Enviar -->
+            <div class="pt-2">
+                {{ form.submit(id="submit-button-step3", class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer shadow-sm") }}
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<!-- Script para mostrar el overlay de carga -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('register-form-step3');
+        const overlay = document.getElementById('loading-overlay');
+        const submitButton = document.getElementById('submit-button-step3');
+
+        if (form) {
+            form.addEventListener('submit', function() {
+                // Muestra el overlay
+                if (overlay) {
+                    overlay.classList.remove('hidden');
+                }
+                
+                // Deshabilita el botón para evitar envíos dobles
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.value = 'Generando...';
+                }
+            });
+        }
+    });
+</script>
+
+{% endblock %}
