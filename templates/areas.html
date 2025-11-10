@@ -18,9 +18,12 @@ En este caso, definimos los iconos para las Áreas de Vida.
         mask-size: cover;
     }
     
-    /* Color del icono dentro de la tarjeta de área */
+    /* Color del icono */
     .area-icon {
         background-color: #1d4ed8; /* blue-700 */
+    }
+    .area-icon-white {
+        background-color: #ffffff; /* blanco */
     }
 
     [data-icon="icono-salud"] {
@@ -56,159 +59,65 @@ En este caso, definimos los iconos para las Áreas de Vida.
 {% endblock %}
 
 {% block content %}
-<!-- Saludo -->
-<h2 class="text-3xl font-semibold text-gray-800 mb-6">¡Bienvenido de nuevo, {{ stats.username }}!</h2>
-
-<!-- Grid de Estadísticas Principales -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     
-    <!-- Nivel -->
-    <div class="bg-white p-6 rounded-xl shadow-sm flex items-center space-x-4 border border-gray-200">
-        <div class="bg-blue-100 p-3 rounded-full">
-            <!-- Icono: Nivel (Trending Up) -->
-            <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.518 5.518m5.518-5.518v5.518m0-5.518H16.5a11.95 11.95 0 0 0-5.814 5.518l-4.306-4.306L2.25 18Z" /></svg>
-        </div>
-        <div>
-            <p class="text-sm text-gray-600">Nivel</p>
-            <p class="text-3xl font-bold text-gray-900">{{ stats.nivel }}</p>
-        </div>
-    </div>
-    
-    <!-- Vida (HP) -->
-    <div class="bg-white p-6 rounded-xl shadow-sm flex items-center space-x-4 border border-gray-200">
-        <div class="bg-red-100 p-3 rounded-full">
-            <!-- Icono: Vida (Corazón) -->
-            <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
-        </div>
-        <div>
-            <p class="text-sm text-gray-600">Vida (HP)</p>
-            <p class="text-3xl font-bold text-gray-900">{{ stats.vida }}<span class="text-lg">%</span></p>
-        </div>
-    </div>
-
-    <!-- Pesos (COP) -->
-    <div class="bg-white p-6 rounded-xl shadow-sm flex items-center space-x-4 border border-gray-200">
-        <div class="bg-green-100 p-3 rounded-full">
-            <!-- Icono: Pesos (Moneda) -->
-            <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45.22-2.003.659Z" /></svg>
-        </div>
-        <div>
-            <p class="text-sm text-gray-600">Pesos (COP)</p>
-            <p class="text-2xl font-bold text-gray-900">$ {{ stats.pesos | format_pesos }}</p>
-        </div>
-    </div>
-
-    <!-- XP (Experiencia) -->
-    <div class="bg-white p-6 rounded-xl shadow-sm col-span-1 md:col-span-2 lg:col-span-4 border border-gray-200">
-        <div class="flex justify-between items-center mb-2">
-            <p class="text-sm text-gray-600">Experiencia (XP)</p>
-            <p class="text-sm font-medium text-blue-600">{{ stats.xp_actual }} / {{ stats.xp_siguiente_nivel }} XP</p>
-        </div>
-        <div class="w-full bg-gray-200 rounded-full h-3">
-            <div class="bg-blue-600 h-3 rounded-full transition-all duration-500" style="width: {{ xp_percent }}%;"></div>
-        </div>
-    </div>
-</div>
-
-<!-- Título de Áreas -->
-<div class="flex justify-between items-center mb-4">
-    <h3 class="text-2xl font-semibold text-gray-800">Áreas de Vida</h3>
-    <a href="{{ url_for('areas') }}" class="text-sm font-medium text-blue-600 hover:text-blue-500">
-        Gestionar Áreas
-    </a>
-</div>
-
-<!-- Contenedor de Áreas de Vida -->
-<div class="space-y-6">
-    {% if areas %}
-        {% for area in areas %}
-        <!-- Tarjeta de Área Individual -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <!-- Encabezado del Área -->
-            <div class="p-4 bg-white border-b border-gray-200">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-100 p-2 rounded-lg">
-                        <div data-icon="{{ area.icono_svg }}" class="area-icon"></div>
-                    </div>
-                    <h4 class="text-xl font-semibold text-gray-900">{{ area.nombre }}</h4>
-                </div>
-            </div>
-            
-            <!-- Contenido del Área (Misiones y Hábitos) -->
-            <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Columna Izquierda: Formulario -->
+    <div class="lg:col-span-1">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h3 class="text-xl font-semibold mb-4 text-gray-900">Crear Nueva Área</h3>
+            <p class="text-gray-600 mb-6">Define las categorías principales de tu vida (ej. Salud, Finanzas, Estudio).</p>
+            <form method="POST" action="{{ url_for('areas') }}" class="space-y-4">
+                {{ form.hidden_tag() }}
                 
-                <!-- Columna de Misiones -->
+                <!-- Nombre del Área -->
                 <div>
-                    <h5 class="font-semibold text-gray-700 mb-2">Misiones Activas</h5>
-                    <ul class="space-y-2">
-                        {% set misiones_activas = area.misiones | selectattr('completada', 'equalto', false) | list %}
-                        {% if misiones_activas %}
-                            {% for mision in misiones_activas %}
-                            <li class="bg-gray-50 border border-gray-200 p-3 rounded-lg flex justify-between items-center hover:bg-gray-100">
-                                <div>
-                                    <p class="font-medium text-gray-800">{{ mision.titulo }}</p>
-                                    <p class="text-xs text-gray-500">+{{ mision.recompensa_xp }} XP / +{{ mision.recompensa_pesos | format_pesos }} COP</p>
-                                </div>
-                                <a href="{{ url_for('misiones') }}" class="text-blue-600 hover:text-blue-500 text-sm font-medium ml-2">Ver</a>
-                            </li>
-                            {% endfor %}
-                        {% else %}
-                            <li class="bg-gray-50 border border-gray-200 p-3 rounded-lg">
-                                <p class="text-sm text-gray-500">No hay misiones activas en esta área.</p>
-                            </li>
-                        {% endif %}
-                    </ul>
+                    {{ form.nombre.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+                    {{ form.nombre(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500", placeholder="Ej. Finanzas") }}
+                    {% for error in form.nombre.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
+                </div>
+                
+                <!-- Selección de Icono -->
+                <div>
+                    {{ form.icono.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+                    {{ form.icono(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500") }}
+                    {% for error in form.icono.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
                 </div>
 
-                <!-- Columna de Hábitos -->
-                <div>
-                    <h5 class="font-semibold text-gray-700 mb-2">Hábitos Diarios</h5>
-                    <ul class="space-y-2">
-                        {% if area.habitos %}
-                            {% for habito in area.habitos %}
-                            <li class="bg-gray-50 border border-gray-200 p-3 rounded-lg flex justify-between items-center">
-                                <div>
-                                    <p class="font-medium text-gray-800">{{ habito.titulo }}</p>
-                                    <p class="text-xs text-yellow-700">Racha: {{ habito.racha }} días</p>
-                                </div>
-                                <!-- Botones de Completar / Fallar -->
-                                <div class="flex space-x-2">
-                                    <!-- Fallar -->
-                                    <form action="{{ url_for('fallar_habito', habito_id=habito.id) }}" method="POST">
-                                        <button type="submit" class="bg-red-100 hover:bg-red-200 text-red-600 font-bold p-2 rounded-full h-9 w-9 flex items-center justify-center" title="Marcar como fallado">
-                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-                                        </button>
-                                    </form>
-                                    <!-- Completar -->
-                                    <form action="{{ url_for('completar_habito', habito_id=habito.id) }}" method="POST">
-                                        <button type="submit" class="bg-green-100 hover:bg-green-200 text-green-600 font-bold p-2 rounded-full h-9 w-9 flex items-center justify-center" title="Completar hoy">
-                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </li>
-                            {% endfor %}
-                        {% else %}
-                            <li class="bg-gray-50 border border-gray-200 p-3 rounded-lg">
-                                <p class="text-sm text-gray-500">No hay hábitos en esta área.</p>
-                            </li>
-                        {% endif %}
-                    </ul>
+                <!-- Botón de Enviar -->
+                <div class="pt-2">
+                    {{ form.submit(class="w-full py-2 px-6 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer") }}
                 </div>
+            </form>
+        </div>
+    </div>
 
+    <!-- Columna Derecha: Lista de Áreas -->
+    <div class="lg:col-span-2">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h3 class="text-xl font-semibold mb-4 text-gray-900">Mis Áreas Actuales</h3>
+            <div class="space-y-4">
+                {% for area in areas %}
+                <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-blue-100 p-2 rounded-lg">
+                            <div data-icon="{{ area.icono_svg }}" class="area-icon"></div>
+                        </div>
+                        <span class="font-medium text-gray-800 text-lg">{{ area.nombre }}</span>
+                    </div>
+                    <!-- Botón de Borrar (Opcional, requiere crear la ruta) -->
+                    <!-- 
+                    <form action="#" method="POST">
+                        <button type="submit" class="text-red-500 hover:text-red-700 text-sm font-medium">
+                            Borrar
+                        </button>
+                    </form>
+                    -->
+                </div>
+                {% else %}
+                <p class="text-gray-600 text-center py-4">Aún no has creado ninguna área. ¡Usa el formulario para empezar!</p>
+                {% endfor %}
             </div>
         </div>
-        {% endfor %}
-    {% else %}
-        <!-- Mensaje si no hay áreas creadas -->
-        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">¡Comienza tu Aventura!</h3>
-            <p class="text-gray-600 mb-4">Aún no has definido tus "Áreas de Vida".</p>
-            <p class="text-gray-600 mb-6">Las áreas te permiten organizar tus misiones y hábitos (Ej. "Salud", "Finanzas", "Estudios").</p>
-            <a href="{{ url_for('areas') }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg shadow-md transition-colors">
-                Crear mi primera Área
-            </a>
-        </div>
-    {% endif %}
+    </div>
 </div>
 {% endblock %}

@@ -1,40 +1,109 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!-- Formulario para Nuevo Hábito -->
-<div class="bg-white p-6 rounded-lg shadow-sm mb-8 border border-gray-200">
-    <h3 class="text-xl font-semibold mb-4 text-gray-900">Crear Nuevo Hábito</h3>
-    <form method="POST" action="{{ url_for('habitos') }}" class="flex space-x-4">
-        {{ form.hidden_tag() }}
-        <div class="flex-grow">
-            {{ form.titulo.label(class="sr-only") }}
-            {{ form.titulo(class="w-full px-4 py-3 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500", placeholder="Título del nuevo hábito (ej. Leer 10 páginas)") }}
-            {% for error in form.titulo.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
-        </div>
-        {{ form.submit(class="py-3 px-6 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer") }}
-    </form>
-</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- Columna Izquierda: Formulario para Nuevo Hábito -->
+    <div class="lg:col-span-1">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h3 class="text-xl font-semibold mb-4 text-gray-900">Crear Nuevo Hábito</h3>
+            <form method="POST" action="{{ url_for('habitos') }}" class="space-y-4">
+                {{ form.hidden_tag() }}
+                
+                <!-- Título -->
+                <div>
+                    {{ form.titulo.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+                    {{ form.titulo(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500", placeholder="Ej. Leer 10 páginas") }}
+                    {% for error in form.titulo.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
+                </div>
 
-<!-- Lista de Hábitos -->
-<h2 class="text-2xl font-semibold text-gray-900 mb-6">Todos tus Hábitos</h2>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {% for habito in habitos %}
-    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex flex-col justify-between">
-        <div>
-            <p class="text-lg font-bold text-gray-900">{{ habito.titulo }}</p>
-            <p class="text-sm text-gray-600">+{{ habito.recompensa_xp }} XP / +{{ habito.recompensa_monedas }} Monedas</p>
-            <p class="text-2xl font-bold text-yellow-700 mt-2">Racha: {{ habito.racha }}</p> <!-- Color de racha ajustado para tema claro -->
+                <!-- Área de Vida -->
+                <div>
+                    {{ form.area.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+                    {{ form.area(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500") }}
+                    {% for error in form.area.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
+                </div>
+
+                <!-- Recompensas y Penalizaciones (Grid) -->
+                <div class="grid grid-cols-3 gap-4">
+                    <!-- Recompensa XP -->
+                    <div>
+                        {{ form.recompensa_xp.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+                        {{ form.recompensa_xp(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500") }}
+                        {% for error in form.recompensa_xp.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
+                    </div>
+                    <!-- Recompensa Pesos -->
+                    <div>
+                        {{ form.recompensa_pesos.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+                        {{ form.recompensa_pesos(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500") }}
+                        {% for error in form.recompensa_pesos.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
+                    </div>
+                    <!-- Penalización HP -->
+                    <div>
+                        {{ form.penalizacion_vida.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+                        {{ form.penalizacion_vida(class="w-full px-4 py-2 border border-gray-300 bg-white text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500") }}
+                        {% for error in form.penalizacion_vida.errors %}<span class="text-red-500 text-xs">{{ error }}</span>{% endfor %}
+                    </div>
+                </div>
+
+                <!-- Botón de Enviar -->
+                <div class="pt-2">
+                    {{ form.submit(class="w-full py-2 px-6 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer") }}
+                </div>
+            </form>
         </div>
-        <!-- Formulario para completar -->
-        <form action="{{ url_for('completar_habito', habito_id=habito.id) }}" method="POST" class="mt-4">
-            <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center space-x-2">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-                <span>Completar Hoy</span>
-            </button>
-        </form>
     </div>
-    {% else %}
-    <p class="text-gray-600 col-span-full text-center">No tienes hábitos. ¡Crea uno!</p>
-    {% endfor %}
+
+    <!-- Columna Derecha: Lista de Hábitos -->
+    <div class="lg:col-span-2">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h3 class="text-xl font-semibold mb-4 text-gray-900">Mis Hábitos Actuales</h3>
+            <div class="space-y-4">
+                {% for habito in habitos %}
+                <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg flex items-center justify-between">
+                    <!-- Información del Hábito -->
+                    <div class="flex-grow">
+                        <div class="flex items-center space-x-2">
+                            <p class="text-lg font-semibold text-gray-900">{{ habito.titulo }}</p>
+                            {% if habito.area %}
+                            <span class="text-xs font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{{ habito.area.nombre }}</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-2xl font-bold text-yellow-600 mt-1">Racha: {{ habito.racha }}</p>
+                        <!-- Recompensas y Penalizaciones -->
+                        <div class="flex space-x-4 mt-2 text-sm">
+                            <span class="text-green-600 font-medium">+{{ habito.recompensa_xp }} XP</span>
+                            <span class="text-green-600 font-medium">+ $ {{ habito.recompensa_pesos | format_pesos }} COP</span>
+                            <span class="text-red-600 font-medium">-{{ habito.penalizacion_vida }} HP (si fallas)</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones de Acción -->
+                    <div class="flex flex-shrink-0 space-x-2 ml-4">
+                        <!-- Fallar -->
+                        <form action="{{ url_for('fallar_habito', habito_id=habito.id) }}" method="POST">
+                            <button type="submit" class="bg-red-100 hover:bg-red-200 text-red-600 font-bold p-2 rounded-full h-10 w-10 flex items-center justify-center" title="Marcar como fallado">
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                            </button>
+                        </form>
+                        <!-- Completar -->
+                        <form action="{{ url_for('completar_habito', habito_id=habito.id) }}" method="POST">
+                            <button type="submit" class="bg-green-100 hover:bg-green-200 text-green-600 font-bold p-2 rounded-full h-10 w-10 flex items-center justify-center" title="Completar hoy">
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-gray-600">No tienes hábitos. ¡Crea uno para empezar!</p>
+                    {% if not current_user.areas %}
+                    <p class="text-gray-500 text-sm mt-2">Primero, asegúrate de <a href="{{ url_for('areas') }}" class="text-blue-600 hover:underline">crear un Área de Vida</a> para asignarle tu hábito.</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

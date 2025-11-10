@@ -1,13 +1,14 @@
 import os
+import locale
 from flask import Flask, render_template, url_for, redirect, flash, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, Email, EqualTo, Length
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField, IntegerField, SelectField
+from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-import click # <<< AÑADIR ESTA LÍNEA
+import click
 
 # --- Configuración de la App ---
 app = Flask(__name__)
@@ -16,15 +17,12 @@ app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'una-clave-secreta
 
 # --- Configuración de la Base de Datos (Aiven) ---
 # Usamos una variable de entorno para la URL de Aiven (PostgreSQL o MySQL)
-# Como fallback, usamos una base de datos local sqlite para desarrollo.
 AIVEN_DB_URI = os.environ.get('AIVEN_DATABASE_URI_PROGRESO')
 
-# --- AÑADIR ESTAS LÍNEAS ---
-# Corrección para el dialecto de SQLAlchemy en producción (Render/Aiven)
 if AIVEN_DB_URI and AIVEN_DB_URI.startswith("postgres://"):
+    # Corregir el dialecto para Render/psycopg2
     AIVEN_DB_URI = AIVEN_DB_URI.replace("postgres://", "postgresql+psycopg2://", 1)
-# --- FIN DE LA CORRECCIÓN ---
-
+    
 app.config['SQLALCHEMY_DATABASE_URI'] = AIVEN_DB_URI or 'sqlite:///progreso.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -36,7 +34,7 @@ login_manager.login_view = 'login' # Redirige a 'login' si se intenta acceder a 
 login_manager.login_message = 'Debes iniciar sesión para ver esta página.'
 login_manager.login_message_category = 'info' # Categoría de mensaje para flash()
 
-# === Modelos de la Base de Datos ===
+# === Modelos de la Base de Datos (Actualizados) ===
 
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
@@ -49,11 +47,13 @@ class User(db.Model, UserMixin):
     nivel = db.Column(db.Integer, default=1)
     xp_actual = db.Column(db.Integer, default=0)
     xp_siguiente_nivel = db.Column(db.Integer, default=100)
-    monedas = db.Column(db.Integer, default=0)
+    pesos = db.Column(db.Integer, default=10000) # Empezar con 10.000 COP
+    vida = db.Column(db.Integer, default=100) # Vida (HP) en %
 
-    # Relaciones (Un usuario tiene muchas misiones, hábitos, etc.)
-    misiones = db.relationship('Mision', backref='autor', lazy=True)
-    habitos = db.relationship('Habito', backref='autor', lazy=True)
+    # Relaciones (Un usuario tiene muchas áreas, misiones, hábitos, etc.)
+    areas = db.relationship('AreaVida', backref='autor', lazy=True, cascade="all, delete-orphan")
+    misiones = db.relationship('Mision', backref='autor', lazy=True, cascade="all, delete-orphan")
+    habitos = db.relationship('Habito', backref='autor', lazy=True, cascade="all, delete-orphan")
     logros_compartidos = db.relationship('LogroCompartido', backref='autor', lazy=True)
 
     def set_password(self, password):
@@ -61,15 +61,31 @@ class User(db.Model, UserMixin):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def ajustar_vida(self, cantidad):
+        """Ajusta la vida, asegurando que se mantenga entre 0 y 100."""
+        self.vida = max(0, min(100, self.vida + cantidad))
+
+# NUEVO: Modelo de Áreas de Vida
+class AreaVida(db.Model):
+    __tablename__ = 'area_vida'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    icono_svg = db.Column(db.String(100), nullable=False, default='M12 21a9 9 0 01-9-9 9 9 0 019-9 9 9 0 019 9 9 9 0 01-9 9z') # Icono por defecto (círculo)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    # Relaciones (Un área tiene muchas misiones y hábitos)
+    misiones = db.relationship('Mision', backref='area', lazy=True)
+    habitos = db.relationship('Habito', backref='area', lazy=True)
 
 class Mision(db.Model):
     __tablename__ = 'mision'
     id = db.Column(db.Integer, primary_key=True)
     titulo = db.Column(db.String(200), nullable=False)
     recompensa_xp = db.Column(db.Integer, default=50)
-    recompensa_monedas = db.Column(db.Integer, default=10)
+    recompensa_pesos = db.Column(db.Integer, default=5000) # Recompensa en COP
     completada = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    area_id = db.Column(db.Integer, db.ForeignKey('area_vida.id'), nullable=True) # Puede ser nulo
     pendientes = db.relationship('Pendiente', backref='mision', lazy=True, cascade="all, delete-orphan")
 
 class Pendiente(db.Model):
@@ -85,15 +101,16 @@ class Habito(db.Model):
     titulo = db.Column(db.String(200), nullable=False)
     racha = db.Column(db.Integer, default=0)
     recompensa_xp = db.Column(db.Integer, default=10)
-    recompensa_monedas = db.Column(db.Integer, default=5)
+    recompensa_pesos = db.Column(db.Integer, default=1000) # Recompensa en COP
+    penalizacion_vida = db.Column(db.Integer, default=5) # Daño a la vida (HP) si se falla
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    area_id = db.Column(db.Integer, db.ForeignKey('area_vida.id'), nullable=True) # Puede ser nulo
 
 class TiendaItem(db.Model):
     __tablename__ = 'tienda_item'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(200), nullable=False)
-    costo = db.Column(db.Integer, nullable=False)
-    # Nota: Hacemos la tienda global por simplicidad, no ligada a un usuario.
+    costo_pesos = db.Column(db.Integer, nullable=False) # Costo en COP
 
 class LogroCompartido(db.Model):
     __tablename__ = 'logro_compartido'
@@ -116,17 +133,57 @@ class LoginForm(FlaskForm):
     password = PasswordField('Contraseña', validators=[DataRequired()])
     submit = SubmitField('Iniciar Sesión')
 
+# NUEVO: Formulario para crear Áreas de Vida
+class AreaVidaForm(FlaskForm):
+    # Lista de iconos predefinidos de Heroicons (https://heroicons.com/)
+    ICONOS = [
+        ('icono-salud', 'Salud (Corazón)'),
+        ('icono-finanzas', 'Finanzas (Moneda)'),
+        ('icono-trabajo', 'Trabajo (Maletín)'),
+        ('icono-estudio', 'Estudio (Libro)'),
+        ('icono-personal', 'Personal (Persona)'),
+        ('icono-social', 'Social (Grupo)'),
+        ('icono-default', 'General (Estrella)')
+    ]
+    nombre = StringField('Nombre del Área', validators=[DataRequired(), Length(max=100)])
+    icono = SelectField('Icono', choices=ICONOS, validators=[DataRequired()])
+    submit = SubmitField('Crear Área')
+
 class MisionForm(FlaskForm):
     titulo = StringField('Título de la Misión', validators=[DataRequired(), Length(max=200)])
+    recompensa_xp = IntegerField('Recompensa XP', default=50, validators=[NumberRange(min=0)])
+    recompensa_pesos = IntegerField('Recompensa Pesos (COP)', default=5000, validators=[NumberRange(min=0)])
+    area = SelectField('Área de Vida', coerce=int)
     submit = SubmitField('Crear Misión')
 
 class HabitoForm(FlaskForm):
     titulo = StringField('Título del Hábito', validators=[DataRequired(), Length(max=200)])
+    recompensa_xp = IntegerField('Recompensa XP', default=10, validators=[NumberRange(min=0)])
+    recompensa_pesos = IntegerField('Recompensa Pesos (COP)', default=1000, validators=[NumberRange(min=0)])
+    penalizacion_vida = IntegerField('Penalización HP (si fallas)', default=5, validators=[NumberRange(min=0)])
+    area = SelectField('Área de Vida', coerce=int)
     submit = SubmitField('Crear Hábito')
 
 class ShareLogroForm(FlaskForm):
     texto = TextAreaField('Comparte tu logro...', validators=[DataRequired(), Length(min=1, max=500)])
     submit = SubmitField('Publicar')
+    
+# === Filtros de Jinja (para formato de moneda) ===
+@app.template_filter('format_pesos')
+def format_pesos(valor):
+    """Formatea un número como pesos colombianos."""
+    try:
+        # Intentar establecer la localización colombiana
+        locale.setlocale(locale.LC_ALL, 'es_CO.UTF-8')
+    except locale.Error:
+        # Fallback si 'es_CO.UTF-8' no está disponible en el servidor
+        locale.setlocale(locale.LC_ALL, '')
+    
+    try:
+        # 'c' es para formato de moneda local
+        return locale.format_string("%d", valor, grouping=True)
+    except Exception:
+        return str(valor) # Fallback simple
 
 # === Rutas de Autenticación ===
 
@@ -155,11 +212,23 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = generate_password_hash(form.password.data)
-        user = User(username=form.username.data, email=form.email.data, password_hash=hashed_password)
+        user = User(
+            username=form.username.data, 
+            email=form.email.data, 
+            password_hash=hashed_password
+        )
         db.session.add(user)
         try:
             db.session.commit()
-            flash('¡Tu cuenta ha sido creada! Ya puedes iniciar sesión.', 'success')
+            
+            # Crear áreas por defecto para el nuevo usuario
+            area_personal = AreaVida(nombre="Personal", icono_svg='icono-personal', autor=user)
+            area_trabajo = AreaVida(nombre="Trabajo", icono_svg='icono-trabajo', autor=user)
+            area_salud = AreaVida(nombre="Salud", icono_svg='icono-salud', autor=user)
+            db.session.add_all([area_personal, area_trabajo, area_salud])
+            db.session.commit()
+            
+            flash('¡Tu cuenta ha sido creada! Áreas por defecto añadidas.', 'success')
             return redirect(url_for('login'))
         except Exception as e:
             db.session.rollback()
@@ -174,7 +243,7 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-# === Rutas de la Aplicación ===
+# === Rutas de la Aplicación (Actualizadas) ===
 
 @app.route('/')
 @login_required
@@ -183,16 +252,41 @@ def index():
     stats = current_user
     xp_percent = (stats.xp_actual / stats.xp_siguiente_nivel) * 100
     
-    misiones_urgentes = Mision.query.filter_by(user_id=stats.id, completada=False).limit(2).all()
-    habitos_diarios = Habito.query.filter_by(user_id=stats.id).limit(3).all()
+    # Obtenemos las áreas del usuario, cargando sus misiones y hábitos
+    # Esto es más eficiente que hacer queries separadas
+    areas_usuario = AreaVida.query.filter_by(user_id=stats.id).all()
     
     return render_template(
         'index.html',
         title='Panel Central',
         stats=stats,
         xp_percent=xp_percent,
-        misiones=misiones_urgentes,
-        habitos=habitos_diarios
+        areas=areas_usuario # Pasamos las áreas al template
+    )
+
+# NUEVA RUTA para gestionar Áreas de Vida
+@app.route('/areas', methods=['GET', 'POST'])
+@login_required
+def areas():
+    """Página para crear y ver las Áreas de Vida."""
+    form = AreaVidaForm()
+    if form.validate_on_submit():
+        nueva_area = AreaVida(
+            nombre=form.nombre.data,
+            icono_svg=form.icono.data,
+            autor=current_user
+        )
+        db.session.add(nueva_area)
+        db.session.commit()
+        flash('¡Área de Vida creada!', 'success')
+        return redirect(url_for('areas'))
+        
+    lista_areas = AreaVida.query.filter_by(user_id=current_user.id).all()
+    return render_template(
+        'areas.html',
+        title='Gestionar Áreas',
+        areas=lista_areas,
+        form=form
     )
 
 @app.route('/misiones', methods=['GET', 'POST'])
@@ -200,9 +294,15 @@ def index():
 def misiones():
     """Página para ver y crear Misiones (Metas y Proyectos)."""
     form = MisionForm()
+    # Llenamos dinámicamente el <select> del formulario con las áreas del usuario
+    form.area.choices = [(a.id, a.nombre) for a in AreaVida.query.filter_by(user_id=current_user.id).all()]
+    
     if form.validate_on_submit():
         nueva_mision = Mision(
             titulo=form.titulo.data,
+            recompensa_xp=form.recompensa_xp.data,
+            recompensa_pesos=form.recompensa_pesos.data,
+            area_id=form.area.data,
             autor=current_user
         )
         db.session.add(nueva_mision)
@@ -210,7 +310,7 @@ def misiones():
         flash('¡Misión creada!', 'success')
         return redirect(url_for('misiones'))
         
-    lista_misiones = Mision.query.filter_by(user_id=current_user.id).all()
+    lista_misiones = Mision.query.filter_by(user_id=current_user.id).order_by(Mision.completada.asc()).all()
     return render_template(
         'misiones.html',
         title='Misiones',
@@ -223,9 +323,16 @@ def misiones():
 def habitos():
     """Página para gestionar los Hábitos."""
     form = HabitoForm()
+    # Llenamos dinámicamente el <select> del formulario
+    form.area.choices = [(a.id, a.nombre) for a in AreaVida.query.filter_by(user_id=current_user.id).all()]
+
     if form.validate_on_submit():
         nuevo_habito = Habito(
             titulo=form.titulo.data,
+            recompensa_xp=form.recompensa_xp.data,
+            recompensa_pesos=form.recompensa_pesos.data,
+            penalizacion_vida=form.penalizacion_vida.data,
+            area_id=form.area.data,
             autor=current_user
         )
         db.session.add(nuevo_habito)
@@ -245,38 +352,27 @@ def habitos():
 @login_required
 def tienda():
     """Página de La Tienda (Recompensas)."""
-    # En una app real, aquí tendrías un formulario para "comprar"
-    # Por ahora, solo mostramos los items.
-    
-    # --- ELIMINAR ESTE BLOQUE ---
-    # Si la tienda está vacía, añadimos items de ejemplo
-    # if TiendaItem.query.count() == 0:
-    #     db.session.add_all([
-    #         TiendaItem(nombre="1h de Videojuegos", costo=50),
-    #         TiendaItem(nombre="Cena especial (delivery)", costo=150),
-    #         TiendaItem(nombre="Día libre de tareas", costo=300)
-    #     ])
-    #     db.session.commit()
-    # --- FIN DEL BLOQUE ELIMINADO ---
-
     items_tienda = TiendaItem.query.all()
     
     return render_template(
         'tienda.html',
         title='Tienda',
         tienda=items_tienda,
-        monedas_usuario=current_user.monedas
+        pesos_usuario=current_user.pesos
     )
 
 @app.route('/perfil')
 @login_required
 def perfil():
     """Página de Perfil y Estadísticas detalladas."""
-    # Aquí podríamos añadir más estadísticas, logros, etc.
+    stats = current_user
+    xp_percent = (stats.xp_actual / stats.xp_siguiente_nivel) * 100
+    
     return render_template(
         'perfil.html',
         title='Mi Perfil',
-        stats=current_user
+        stats=stats,
+        xp_percent=xp_percent
     )
 
 @app.route('/feed', methods=['GET', 'POST'])
@@ -294,7 +390,6 @@ def feed():
         flash('¡Logro compartido!', 'success')
         return redirect(url_for('feed'))
         
-    # Mostramos los 20 logros más recientes de todos los usuarios
     logros_publicos = LogroCompartido.query.order_by(LogroCompartido.timestamp.desc()).limit(20).all()
     
     return render_template(
@@ -305,7 +400,6 @@ def feed():
     )
 
 # === Rutas de Acciones (Completar, Comprar, etc.) ===
-# Estas rutas procesan lógica (POST) y luego redirigen
 
 @app.route('/completar_habito/<int:habito_id>', methods=['POST'])
 @login_required
@@ -316,8 +410,9 @@ def completar_habito(habito_id):
 
     # Lógica del juego
     current_user.xp_actual += habito.recompensa_xp
-    current_user.monedas += habito.recompensa_monedas
+    current_user.pesos += habito.recompensa_pesos
     habito.racha += 1
+    current_user.ajustar_vida(1) # Curar 1 HP por éxito
     
     # Lógica de subir de nivel (simplificada)
     if current_user.xp_actual >= current_user.xp_siguiente_nivel:
@@ -325,12 +420,41 @@ def completar_habito(habito_id):
         current_user.xp_actual -= current_user.xp_siguiente_nivel
         current_user.xp_siguiente_nivel = int(current_user.xp_siguiente_nivel * 1.5) # Dificultad incremental
         flash(f'¡Felicidades, subiste al Nivel {current_user.nivel}!', 'success')
+        current_user.ajustar_vida(100) # Curar toda la vida al subir de nivel
+        flash('¡Vida (HP) restaurada al máximo!', 'info')
 
     db.session.commit()
-    flash('¡Hábito completado!', 'info')
-    return redirect(url_for('habitos'))
+    flash(f'¡Hábito completado! Ganaste {habito.recompensa_pesos} COP.', 'info')
+    return redirect(request.referrer or url_for('index')) # Volver a la página anterior
 
-# --- REEMPLAZAR EL BLOQUE __main__ CON ESTO ---
+# NUEVA RUTA: Para fallar un hábito
+@app.route('/fallar_habito/<int:habito_id>', methods=['POST'])
+@login_required
+def fallar_habito(habito_id):
+    habito = Habito.query.get_or_404(habito_id)
+    if habito.autor != current_user:
+        return redirect(url_for('habitos'))
+
+    # Lógica de penalización
+    dano = habito.penalizacion_vida
+    current_user.ajustar_vida(-dano)
+    racha_perdida = habito.racha
+    habito.racha = 0 # Reiniciar racha
+    
+    db.session.commit()
+    
+    flash(f'Fallaste el hábito. Racha de {racha_perdida} días perdida.', 'warning')
+    flash(f'Perdiste {dano} HP.', 'danger')
+    
+    if current_user.vida == 0:
+        flash('¡Tu vida ha llegado a 0! Has sido penalizado.', 'danger')
+        # Aquí podrías añadir más penalizaciones (ej. perder pesos, XP)
+        current_user.pesos = max(0, current_user.pesos - 10000)
+        current_user.vida = 50 # Restaurar a 50% de vida
+        db.session.commit()
+        flash('Perdiste $ 10.000 COP. Tu vida se restauró al 50%.', 'danger')
+
+    return redirect(request.referrer or url_for('index')) # Volver a la página anterior
 
 # === Comandos CLI para la App ===
 @app.cli.command("init-db")
@@ -345,20 +469,10 @@ def init_db_command():
     # Añadir items de tienda solo si no existen
     if TiendaItem.query.count() == 0:
         db.session.add_all([
-            TiendaItem(nombre="1h de Videojuegos", costo=50),
-            TiendaItem(nombre="Cena especial (delivery)", costo=150),
-            TiendaItem(nombre="Día libre de tareas", costo=300)
+            TiendaItem(nombre="1h de Videojuegos", costo_pesos=20000),
+            TiendaItem(nombre="Cena especial (delivery)", costo_pesos=50000),
+            TiendaItem(nombre="Día libre de tareas", costo_pesos=100000)
         ])
         db.session.commit()
     
-    print("Base de datos inicializada y poblada.")
-
-# --- Ejecución de la App ---
-# El bloque if __name__ == '__main__': se elimina.
-# El servidor de producción (Gunicorn) llamará al objeto 'app' directamente.
-# Para desarrollo local, ahora se debe usar:
-# 1. export FLASK_APP=app.py
-# 2. export FLASK_DEBUG=1
-# 3. flask init-db (solo la primera vez)
-# 4. flask run
-# --- FIN DEL REEMPLAZO ---
+    print("Base de datos inicializada y poblada con la tienda.")

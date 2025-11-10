@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
         // Configuración de Tailwind para la paleta de colores Azul
+        // Esto nos permite usar clases como 'bg-primary-600'
         tailwind.config = {
             theme: {
                 extend: {
@@ -54,22 +55,32 @@
                 <!-- Navegación Principal -->
                 <nav class="mt-8 space-y-2">
                     <a href="{{ url_for('index') }}" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100 {% if request.endpoint == 'index' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
+                        <!-- Icono: Panel Central -->
                         <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25A2.25 2.25 0 0 1 13.5 8.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" /></svg>
                         <span>Panel Central</span>
                     </a>
+                    <a href="{{ url_for('areas') }}" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100 {% if request.endpoint == 'areas' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
+                        <!-- Icono: Áreas (Layers) -->
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.375.365l-2.62 2.123c-.5.4-1.2.6-1.9.6H.75a.75.75 0 0 1-.75-.75V11.25c0-.828.672-1.5 1.5-1.5h6.375c.621 0 1.17.256 1.56.67l1.06 1.06c.297.297.676.46 1.06.46h6.375c.828 0 1.5.672 1.5 1.5v3.75a.75.75 0 0 1-.75.75H13.5c-.7 0-1.3-.2-1.8-.6l-2.62-2.123A3 3 0 0 0 9 17.25Z" /></svg>
+                        <span>Gestionar Áreas</span>
+                    </a>
                     <a href="{{ url_for('misiones') }}" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100 {% if request.endpoint == 'misiones' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
-                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0h6"/></svg>
+                        <!-- Icono: Misiones (Target) -->
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
                         <span>Misiones</span>
                     </a>
                     <a href="{{ url_for('habitos') }}" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100 {% if request.endpoint == 'habitos' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
+                        <!-- Icono: Hábitos (Refresh) -->
                         <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
                         <span>Hábitos</span>
                     </a>
                     <a href="{{ url_for('tienda') }}" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100 {% if request.endpoint == 'tienda' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
+                        <!-- Icono: Tienda (Shopping) -->
                         <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm11.25 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" /></svg>
                         <span>Tienda</span>
                     </a>
                     <a href="{{ url_for('feed') }}" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100 {% if request.endpoint == 'feed' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
+                        <!-- Icono: Feed (Users) -->
                         <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666l-.014.123m-5.86-.031a11.959 11.959 0 0 1-2.599 0m5.858 0Abc.m0 0a11.959 11.959 0 0 0-2.599 0m2.599 0A11.959 11.959 0 0 0 9 18.73m0 0a11.959 11.959 0 0 0-2.599 0m2.599 0A11.959 11.959 0 0 0 3.741 18.73m0 0a9.094 9.094 0 0 0-3.741-.479 3 3 0 0 0 4.682 2.72M3.741 18.253v.031c0 .225.012.447.037.666l.014.123m-5.86-.031a11.959 11.959 0 0 1 2.599 0m-5.858 0a11.959 11.959 0 0 0 2.599 0m-2.599 0A11.959 11.959 0 0 0 9 18.73m0 0a11.959 11.959 0 0 0 2.599 0m-2.599 0A11.959 11.959 0 0 0 15 18.73m0 0a11.959 11.959 0 0 0 2.599 0M9 12.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm12 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
                         <span>Feed Social</span>
                     </a>
@@ -78,6 +89,18 @@
             
             <!-- Perfil de Usuario y Logout -->
             <div class="border-t border-gray-200 pt-4">
+                
+                <!-- Barra de Vida (HP) -->
+                <div class="px-2 mb-4">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-sm font-medium text-gray-700">Vida (HP)</span>
+                        <span class="text-sm font-bold text-red-600">{{ current_user.vida }} / 100</span>
+                    </div>
+                    <div class="w-full bg-red-100 rounded-full h-2.5 border border-red-200">
+                        <div class="bg-red-500 h-2 rounded-full" style="width: {{ current_user.vida }}%;"></div>
+                    </div>
+                </div>
+
                 <a href="{{ url_for('perfil') }}" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 {% if request.endpoint == 'perfil' %}bg-gray-100{% endif %}">
                     <svg class="h-8 w-8 rounded-full bg-blue-600 p-1 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
                     <span class="font-medium text-gray-800">{{ current_user.username }}</span>
@@ -94,14 +117,29 @@
             <!-- Mensajes Flash (Notificaciones) - Modernizado -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    <div class="fixed top-5 right-5 p-4 w-full max-w-sm z-50">
+                    <!-- Contenedor de Toast -->
+                    <div class="fixed top-5 right-5 w-full max-w-sm z-50">
                     {% for category, message in messages %}
-                        <div class="p-4 rounded-lg shadow-xl mb-2
+                        <!-- Toast Individual -->
+                        <div class="p-4 rounded-lg shadow-xl mb-2 flex items-start space-x-3
                             {% if category == 'danger' %} bg-red-600 text-white
                             {% elif category == 'success' %} bg-green-600 text-white
                             {% else %} bg-blue-600 text-white
                             {% endif %}">
-                            {{ message }}
+                            <!-- Icono del Toast -->
+                            <div class="flex-shrink-0">
+                                {% if category == 'danger' %}
+                                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+                                {% elif category == 'success' %}
+                                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                {% else %}
+                                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>
+                                {% endif %}
+                            </div>
+                            <!-- Mensaje -->
+                            <div>
+                                <p class="font-medium">{{ message }}</p>
+                            </div>
                         </div>
                     {% endfor %}
                     </div>
