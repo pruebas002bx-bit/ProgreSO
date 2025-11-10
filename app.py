@@ -80,6 +80,11 @@ class User(db.Model, UserMixin):
     # Configuración del Asistente de IA
     asistente_persona = db.Column(db.String(100), default='Amigable')
 
+    # --- NUEVOS CAMPOS DE CONFIGURACIÓN ---
+    ai_misiones_por_dia = db.Column(db.Integer, default=1)
+    ai_habitos_a_generar = db.Column(db.Integer, default=3) # Para el setup inicial
+    ai_tienda_items_por_dia = db.Column(db.Integer, default=3) # Para el refresh diario
+
     # Relaciones
     areas = db.relationship('AreaVida', backref='autor', lazy=True, cascade="all, delete-orphan")
     misiones = db.relationship('Mision', backref='autor', lazy=True, cascade="all, delete-orphan")
@@ -222,8 +227,16 @@ class ShareLogroForm(FlaskForm):
     submit = SubmitField('Publicar')
 
 class ConfiguracionForm(FlaskForm):
-    # CORRECCIÓN: Cambiado a RadioField para que coincida con el HTML
     asistente_persona = RadioField('Personalidad del Asistente', coerce=str, validators=[DataRequired()])
+    
+    # --- NUEVOS CAMPOS ---
+    ai_misiones_por_dia = SelectField('Misiones Diarias a Generar (IA)', coerce=int, validators=[DataRequired()],
+        choices=[(i, str(i)) for i in range(1, 11)]) # Opciones 1-10
+    ai_habitos_a_generar = SelectField('Hábitos a Generar (Setup IA)', coerce=int, validators=[DataRequired()],
+        choices=[(i, str(i)) for i in range(1, 11)])
+    ai_tienda_items_por_dia = SelectField('Items de Tienda a Generar (IA)', coerce=int, validators=[DataRequired()],
+        choices=[(i, str(i)) for i in range(1, 11)])
+
     submit = SubmitField('Guardar Cambios')
 
 
@@ -231,7 +244,6 @@ class ConfiguracionForm(FlaskForm):
 
 @login_manager.user_loader
 def load_user(user_id):
-    # CORRECCIÓN: Añadir un try-except aquí para evitar crashes si el usuario no existe
     try:
         return User.query.get(int(user_id))
     except Exception as e:
@@ -247,7 +259,6 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=True)
-            # Si el usuario no ha completado el registro, lo enviamos al paso 2
             if not user.edad:
                 return redirect(url_for('register_step_2'))
             return redirect(url_for('index'))
@@ -261,7 +272,6 @@ def register_step_1():
         return redirect(url_for('index'))
     form = RegistrationStep1Form()
     if form.validate_on_submit():
-        # Validar si el email o username ya existen
         existing_email = User.query.filter_by(email=form.email.data).first()
         if existing_email:
             flash('Ese email ya está registrado. Por favor, inicia sesión.', 'warning')
@@ -321,8 +331,6 @@ def register_step_3():
         current_user.metas_profesionales = form.metas_profesionales.data
         try:
             db.session.commit()
-            # ¡Aquí llamamos a la IA!
-            # Esto se hace en una ruta separada para manejar el 'loading'
             return redirect(url_for('generar_setup_ia'))
         except Exception as e:
             db.session.rollback()
@@ -335,8 +343,7 @@ def register_step_3():
 @login_required
 def generar_setup_ia():
     """
-    Esta es la ruta que se llama DESPUÉS del paso 3.
-    Maneja la llamada a la API de Gemini y puebla la base de datos.
+    Ruta de carga que llama a la IA para el setup inicial
     """
     try:
         if not current_user.metas_profesionales:
@@ -358,7 +365,7 @@ def generar_setup_ia():
         data = json.loads(ai_response)
         
         # 1. Crear Áreas de Vida
-        areas_map = {} # Para mapear nombres de IA a IDs de BD
+        areas_map = {}
         for area in data.get('areas_vida', []):
             nueva_area = AreaVida(
                 nombre=area.get('nombre'),
@@ -366,12 +373,12 @@ def generar_setup_ia():
                 autor=current_user
             )
             db.session.add(nueva_area)
-            db.session.flush() # Para obtener el ID antes del commit
+            db.session.flush() 
             areas_map[area.get('nombre')] = nueva_area.id
 
         # 2. Crear Hábitos
         for habito in data.get('habitos', []):
-            area_id = areas_map.get(habito.get('area_nombre')) # Buscar el ID del área
+            area_id = areas_map.get(habito.get('area_nombre'))
             nuevo_habito = Habito(
                 titulo=habito.get('titulo'),
                 recompensa_xp=habito.get('recompensa_xp', 10),
@@ -382,7 +389,7 @@ def generar_setup_ia():
             )
             db.session.add(nuevo_habito)
 
-        # 3. Crear Items de Tienda Personalizados
+        # 3. Crear Items de Tienda Personalizados (Lote Inicial)
         for item in data.get('recompensas_tienda', []):
             nuevo_item = TiendaItem(
                 nombre=item.get('nombre'),
@@ -415,20 +422,18 @@ def logout():
 @login_required
 def index():
     """Ruta principal: El Panel Central (Dashboard)."""
-    # Si el usuario no ha completado el registro, lo forzamos
     if not current_user.edad:
         return redirect(url_for('register_step_2'))
     if not current_user.metas_personales:
         return redirect(url_for('register_step_3'))
-    if not current_user.areas: # Si no tiene áreas, la IA no ha corrido
+    if not current_user.areas: 
         return redirect(url_for('generar_setup_ia'))
 
     stats = current_user
     xp_percent = 0
-    if stats.xp_siguiente_nivel > 0: # Evitar división por cero
+    if stats.xp_siguiente_nivel > 0:
         xp_percent = (stats.xp_actual / stats.xp_siguiente_nivel) * 100
     
-    # Obtenemos las áreas con sus misiones y hábitos precargados
     areas = AreaVida.query.filter_by(user_id=stats.id).all()
     
     return render_template(
@@ -437,8 +442,8 @@ def index():
         stats=stats,
         xp_percent=xp_percent,
         areas=areas,
-        datetime=datetime, # Pasamos el módulo datetime al template
-        timedelta=timedelta # Pasamos timedelta para comparar fechas
+        datetime=datetime,
+        timedelta=timedelta
     )
 
 @app.route('/areas', methods=['GET', 'POST'])
@@ -465,21 +470,18 @@ def areas():
         form=form
     )
 
-@app.route('/misiones', methods=['GET']) # MODIFICADO: Eliminado POST
+@app.route('/misiones', methods=['GET'])
 @login_required
 def misiones():
     """Página para ver Misiones Diarias (solo lectura)."""
-    
-    # Ya no hay formulario, las misiones son generadas por la IA
-    
     lista_misiones = Mision.query.filter_by(user_id=current_user.id).order_by(Mision.completada.asc(), Mision.plazo.asc()).all()
     
     return render_template(
         'misiones.html',
         title='Misiones Diarias',
         misiones=lista_misiones,
-        datetime=datetime, # Pasamos datetime al template
-        timedelta=timedelta # Pasamos timedelta al template
+        datetime=datetime,
+        timedelta=timedelta
     )
 
 @app.route('/habitos', methods=['GET', 'POST'])
@@ -487,7 +489,6 @@ def misiones():
 def habitos():
     """Página para gestionar los Hábitos."""
     form = HabitoForm()
-    # Llenamos dinámicamente las opciones del SelectField
     form.area_id.choices = [(a.id, a.nombre) for a in AreaVida.query.filter_by(user_id=current_user.id).all()]
     
     if form.validate_on_submit():
@@ -526,7 +527,6 @@ def tienda():
 
         if current_user.pesos >= item.costo_pesos:
             current_user.pesos -= item.costo_pesos
-            # (Aquí podríamos añadir lógica para "activar" la recompensa)
             db.session.commit()
             flash(f'¡Has comprado "{item.nombre}"!', 'success')
         else:
@@ -581,17 +581,23 @@ def feed():
 def configuracion():
     """Página para configurar la personalidad del Asistente de IA."""
     form = ConfiguracionForm()
-    # Llenamos las opciones del RadioField desde la base de datos
     form.asistente_persona.choices = [(p.nombre, p.nombre) for p in AsistentePersonalidad.query.all()]
     
     if form.validate_on_submit():
         current_user.asistente_persona = form.asistente_persona.data
+        # --- AÑADIR ESTO ---
+        current_user.ai_misiones_por_dia = form.ai_misiones_por_dia.data
+        current_user.ai_habitos_a_generar = form.ai_habitos_a_generar.data
+        current_user.ai_tienda_items_por_dia = form.ai_tienda_items_por_dia.data
         db.session.commit()
-        flash('¡Personalidad del asistente guardada!', 'success')
+        flash('¡Configuración guardada!', 'success')
         return redirect(url_for('configuracion'))
     elif request.method == 'GET':
-        # Mostramos la selección actual
         form.asistente_persona.data = current_user.asistente_persona
+        # --- AÑADIR ESTO ---
+        form.ai_misiones_por_dia.data = current_user.ai_misiones_por_dia
+        form.ai_habitos_a_generar.data = current_user.ai_habitos_a_generar
+        form.ai_tienda_items_por_dia.data = current_user.ai_tienda_items_por_dia
 
     return render_template(
         'configuracion.html',
@@ -609,15 +615,11 @@ def completar_habito(habito_id):
     if habito.autor != current_user:
         return redirect(request.referrer or url_for('habitos'))
 
-    # Lógica del juego
     current_user.xp_actual += habito.recompensa_xp
     current_user.pesos += habito.recompensa_pesos
     habito.racha += 1
-    
-    # Curar 1 HP al completar, sin pasar de 100
     current_user.vida = min(current_user.vida + 1, 100)
     
-    # Lógica de subir de nivel
     if current_user.xp_siguiente_nivel > 0 and current_user.xp_actual >= current_user.xp_siguiente_nivel:
         current_user.nivel += 1
         current_user.xp_actual -= current_user.xp_siguiente_nivel
@@ -635,10 +637,8 @@ def fallar_habito(habito_id):
     if habito.autor != current_user:
         return redirect(request.referrer or url_for('habitos'))
         
-    # Penalización de vida, sin bajar de 0
     current_user.vida = max(current_user.vida - habito.penalizacion_vida, 0)
     
-    # Romper la racha
     racha_rota = habito.racha
     habito.racha = 0
     
@@ -651,7 +651,6 @@ def fallar_habito(habito_id):
         
     return redirect(request.referrer or url_for('habitos'))
 
-# ELIMINADO: La ruta '/toggle_pendiente' ya no es necesaria
 
 @app.route('/completar_mision/<int:mision_id>', methods=['POST'])
 @login_required
@@ -664,14 +663,10 @@ def completar_mision(mision_id):
     if mision.completada:
         return jsonify({'success': False, 'error': 'Misión ya completada'}), 400
 
-    # SIMPLIFICADO: Ya no se revisan pendientes
-
-    # Dar recompensas
     current_user.xp_actual += mision.recompensa_xp
     current_user.pesos += mision.recompensa_pesos
     mision.completada = True
     
-    # Lógica de subir de nivel
     subio_de_nivel = False
     if current_user.xp_siguiente_nivel > 0 and current_user.xp_actual >= current_user.xp_siguiente_nivel:
         current_user.nivel += 1
@@ -688,7 +683,7 @@ def completar_mision(mision_id):
         'recompensa_pesos': mision.recompensa_pesos,
         'subio_de_nivel': subio_de_nivel,
         'nuevo_nivel': current_user.nivel,
-        'stats_actualizados': { # Para actualizar la UI
+        'stats_actualizados': { 
             'xp': current_user.xp_actual,
             'xp_siguiente': current_user.xp_siguiente_nivel,
             'pesos_formateados': format_pesos_filter(current_user.pesos)
@@ -710,7 +705,7 @@ def get_mensajes_asistente():
             'contenido': msg.contenido,
             'timestamp': msg.timestamp.isoformat()
         })
-        msg.leido = True # Marcamos como leído
+        msg.leido = True 
     
     db.session.commit()
     return jsonify(data)
@@ -733,7 +728,6 @@ def _get_gemini_response(prompt_text, want_json=False):
             
         response = model.generate_content(prompt_text)
         
-        # Limpiar la respuesta para asegurar que es JSON válido si se pidió
         if want_json:
             cleaned_response = response.text.strip().replace("```json", "").replace("```", "")
             return cleaned_response
@@ -747,15 +741,14 @@ def _get_gemini_response(prompt_text, want_json=False):
 
 def _generar_setup_ia_logic(user):
     """
-    Llama a la API de Gemini para generar un plan de vida personalizado
-    basado en las respuestas de registro del usuario.
+    Genera el plan de vida inicial (Áreas, Hábitos, Tienda) para un usuario nuevo.
     """
     prompt = textwrap.dedent(f"""
     Eres "ProgreSO", un coach de vida experto en gamificación. Un nuevo usuario se ha registrado y 
     necesita un plan de inicio personalizado. Tu misión es generar un JSON ESTRUCTURADO basado en 
     su perfil.
 
-    **Moneda Local:** Pesos Colombianos (COP). Usa valores razonables, ej. un café (5000 COP), una cena (50000 COP).
+    **Moneda Local:** Pesos Colombianos (COP). Usa valores razonables.
 
     **Perfil del Usuario:**
     - **Edad:** {user.edad}
@@ -766,40 +759,24 @@ def _generar_setup_ia_logic(user):
 
     **Tu Tarea:**
     Genera un plan de inicio con 3 componentes: "areas_vida", "habitos", y "recompensas_tienda".
-    NO GENERES MISIONES, ya que esas se crearán diariamente.
+    NO GENERES MISIONES.
 
     **REGLAS ESTRICTAS DEL JSON DE SALIDA:**
 
     1.  **areas_vida:** Crea 3 o 4 áreas de vida CLAVE basadas en sus metas.
-        - "nombre": El nombre del área (ej. "Salud Física", "Carrera Tech", "Finanzas Personales").
+        - "nombre": El nombre del área (ej. "Salud Física", "Carrera Tech").
         - "icono_svg": Asigna un icono de esta lista: ['icono-salud', 'icono-dinero', 'icono-carrera', 'icono-estudio', 'icono-mente', 'icono-social', 'icono-hobby', 'icono-default'].
 
-    2.  **habitos:** Crea 3 hábitos diarios o recurrentes.
-        - "titulo": El hábito (ej. "Meditar 10 minutos", "Estudiar Python 30 min").
+    2.  **habitos:** Crea exactamente {user.ai_habitos_a_generar} hábitos diarios o recurrentes.
+        - "titulo": El hábito (ej. "Meditar 10 minutos").
         - "area_nombre": El "nombre" EXACTO de una de las 'areas_vida' que creaste.
-        - "recompensa_xp": Número (ej. 10).
-        - "recompensa_pesos": Número (ej. 1000).
-        - "penalizacion_vida": Número (ej. 5).
+        - "recompensa_xp": 10
+        - "recompensa_pesos": 1000
+        - "penalizacion_vida": 5
 
-    3.  **recompensas_tienda:** Crea 3 recompensas personalizadas basadas en sus HOBBIES.
-        - "nombre": La recompensa (ej. "Comprar un libro nuevo", "1 hora de videojuegos", "Pedir cena").
+    3.  **recompensas_tienda:** Crea exactamente {user.ai_tienda_items_por_dia} recompensas personalizadas basadas en sus HOBBIES.
+        - "nombre": La recompensa (ej. "Comprar un libro nuevo").
         - "costo_pesos": Número (ej. 25000).
-
-    **Ejemplo de formato JSON de salida (¡SÍGUELO!):**
-    {{
-        "areas_vida": [
-            {{"nombre": "Salud y Bienestar", "icono_svg": "icono-salud"}},
-            {{"nombre": "Desarrollo Profesional", "icono_svg": "icono-carrera"}}
-        ],
-        "habitos": [
-            {{"titulo": "Hacer 30 min de ejercicio", "area_nombre": "Salud y Bienestar", "recompensa_xp": 10, "recompensa_pesos": 1500, "penalizacion_vida": 5}},
-            {{"titulo": "Estudiar 1 módulo de AWS", "area_nombre": "Desarrollo Profesional", "recompensa_xp": 15, "recompensa_pesos": 2000, "penalizacion_vida": 5}}
-        ],
-        "recompensas_tienda": [
-            {{"nombre": "Comprar un nuevo videojuego", "costo_pesos": 150000}},
-            {{"nombre": "Noche de pizza y película", "costo_pesos": 60000}}
-        ]
-    }}
     """)
     
     app.logger.info("Enviando prompt (setup) a Gemini...")
@@ -816,13 +793,13 @@ HORA_REPORTE = 21 # 9:00 PM
 def _generar_misiones_diarias_logic():
     """
     Lógica para el Cron Job 1.
-    Genera una nueva misión diaria para cada usuario.
+    Genera nuevas misiones diarias para cada usuario.
     """
     app.logger.info("Iniciando lógica de Cron: Generar Misiones Diarias...")
-    users = User.query.filter(User.metas_personales != None).all() # Solo usuarios que completaron el registro
+    users = User.query.filter(User.metas_personales != None).all() 
     
     for user in users:
-        app.logger.info(f"Generando misión para: {user.username}")
+        app.logger.info(f"Generando {user.ai_misiones_por_dia} misión(es) para: {user.username}")
         try:
             metas = f"Personales: {user.metas_personales}\nProfesionales: {user.metas_profesionales}"
             areas = AreaVida.query.filter_by(autor=user).all()
@@ -831,20 +808,27 @@ def _generar_misiones_diarias_logic():
                 continue
             
             nombres_areas = ", ".join([a.nombre for a in areas])
+            cantidad_misiones = user.ai_misiones_por_dia
 
             prompt = textwrap.dedent(f"""
             **Rol:** Eres "ProgreSO", un coach de IA.
             **Perfil del Usuario:**
             - Metas Principales: {metas}
             - Áreas de Enfoque: {nombres_areas}
-            **Tarea:** Genera UNA (1) misión diaria, pequeña y accionable, que ayude al usuario a avanzar en sus metas.
-            La misión debe ser completable en un solo día (ej. "Escribir 500 palabras de la tesis", "Hacer 20 flexiones", "Investigar 1 API nueva").
-            **Formato de Salida:** Responde ÚNICAMENTE con un objeto JSON con 3 claves: "titulo", "area_nombre", "recompensa_pesos".
-            - "titulo": El nombre de la misión.
-            - "area_nombre": El nombre EXACTO de una de las Áreas de Enfoque del usuario.
-            - "recompensa_pesos": Un número (ej. 5000)
-            **Ejemplo de Salida:**
-            {{"titulo": "Estudiar 1 lección de React", "area_nombre": "Carrera Tech", "recompensa_pesos": 5000}}
+            **Tarea:** Genera exactamente {cantidad_misiones} misión(es) diaria(s), pequeña(s) y accionable(s), que ayuden al usuario a avanzar en sus metas.
+            
+            **Formato de Salida:** Responde ÚNICAMENTE con un objeto JSON.
+            Si {cantidad_misiones} == 1, responde con un objeto:
+            {{"titulo": "...", "area_nombre": "...", "recompensa_pesos": 5000}}
+            
+            Si {cantidad_misiones} > 1, responde con una LISTA de objetos:
+            [
+              {{"titulo": "Misión 1", "area_nombre": "Área 1", "recompensa_pesos": 5000}},
+              {{"titulo": "Misión 2", "area_nombre": "Área 2", "recompensa_pesos": 3000}}
+            ]
+            
+            **Reglas:**
+            - "area_nombre" debe ser un nombre EXACTO de la lista de Áreas de Enfoque.
             """)
             
             response_json = _get_gemini_response(prompt, want_json=True)
@@ -852,24 +836,34 @@ def _generar_misiones_diarias_logic():
                 raise Exception(response_json)
                 
             data = json.loads(response_json)
-
-            area_mision = AreaVida.query.filter_by(autor=user, nombre=data.get('area_nombre')).first()
-            area_id = area_mision.id if area_mision else None
+            
+            # Normalizar la respuesta de la IA (sea un objeto o una lista)
+            if isinstance(data, list):
+                misiones_data = data
+            elif isinstance(data, dict):
+                misiones_data = [data]
+            else:
+                raise Exception("Respuesta de IA no tiene el formato esperado (ni lista ni objeto)")
 
             now_user_tz = datetime.now(USER_TZ)
             plazo_local = now_user_tz.replace(hour=HORA_VERIFICACION, minute=0, second=0, microsecond=0)
             plazo_utc = plazo_local.astimezone(pytz.utc)
 
-            nueva_mision = Mision(
-                titulo=data.get('titulo', 'Misión Diaria (Error IA)'),
-                recompensa_xp=50,
-                recompensa_pesos=data.get('recompensa_pesos', 5000),
-                plazo=plazo_utc,
-                user_id=user.id,
-                area_id=area_id
-            )
-            db.session.add(nueva_mision)
-            db.session.commit()
+            for mision_data in misiones_data:
+                area_mision = AreaVida.query.filter_by(autor=user, nombre=mision_data.get('area_nombre')).first()
+                area_id = area_mision.id if area_mision else None
+
+                nueva_mision = Mision(
+                    titulo=mision_data.get('titulo', 'Misión Diaria (Error IA)'),
+                    recompensa_xp=50,
+                    recompensa_pesos=mision_data.get('recompensa_pesos', 5000),
+                    plazo=plazo_utc,
+                    user_id=user.id,
+                    area_id=area_id
+                )
+                db.session.add(nueva_mision)
+            
+            db.session.commit() # Commit una vez por usuario
 
         except Exception as e:
             db.session.rollback()
@@ -889,7 +883,7 @@ def _verificar_misiones_fallidas_logic():
         Mision.plazo < datetime.utcnow()
     ).all()
     
-    users_notificados = {} # Para no spamear al bot
+    users_notificados = {} 
 
     for mision in misiones_fallidas:
         user = mision.autor
@@ -986,6 +980,60 @@ def _generar_reporte_diario_logic():
 
     return "Generación de reportes completada."
 
+# --- NUEVA LÓGICA DE CRON PARA TIENDA ---
+def _actualizar_tienda_diaria_logic():
+    """
+    Lógica para el Cron Job 4.
+    Refresca la tienda para cada usuario.
+    """
+    app.logger.info("Iniciando lógica de Cron: Actualizar Tienda Diaria...")
+    users = User.query.filter(User.metas_personales != None).all()
+    
+    for user in users:
+        app.logger.info(f"Actualizando tienda para: {user.username}")
+        try:
+            # 1. Borrar items antiguos de la tienda
+            TiendaItem.query.filter_by(autor=user).delete()
+            
+            # 2. Generar items nuevos
+            cantidad_items = user.ai_tienda_items_por_dia
+            prompt = textwrap.dedent(f"""
+            **Rol:** Eres "ProgreSO", un coach de IA.
+            **Perfil del Usuario:**
+            - Hobbies: {user.hobbies}
+            **Tarea:** Genera exactamente {cantidad_items} recompensas de tienda personalizadas.
+            
+            **Formato de Salida:** Responde ÚNICAMENTE con una LISTA de objetos JSON.
+            [
+              {{"nombre": "Recompensa 1", "costo_pesos": 20000}},
+              {{"nombre": "Recompensa 2", "costo_pesos": 70000}}
+            ]
+            """)
+            
+            response_json = _get_gemini_response(prompt, want_json=True)
+            if "Error" in response_json:
+                raise Exception(response_json)
+                
+            data = json.loads(response_json)
+            
+            # 3. Añadir items nuevos a la BD
+            for item in data:
+                nuevo_item = TiendaItem(
+                    nombre=item.get('nombre'),
+                    costo_pesos=item.get('costo_pesos', 10000),
+                    autor=user
+                )
+                db.session.add(nuevo_item)
+            
+            db.session.commit()
+
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error actualizando tienda para {user.username}: {e}")
+    
+    return "Actualización de tiendas completada."
+
+
 # === Rutas de Cron Job (Gratuito) ===
 
 @app.route('/cron/generar-misiones')
@@ -996,6 +1044,17 @@ def cron_generar_misiones():
     
     resultado = _generar_misiones_diarias_logic()
     return jsonify(status="ok", message=resultado)
+
+# --- NUEVA RUTA DE CRON ---
+@app.route('/cron/actualizar-tienda')
+def cron_actualizar_tienda():
+    if request.args.get('secret') != app.config['CRON_SECRET_KEY']:
+        app.logger.warning("Intento de acceso no autorizado a /cron/actualizar-tienda")
+        return abort(403)
+    
+    resultado = _actualizar_tienda_diaria_logic()
+    return jsonify(status="ok", message=resultado)
+
 
 @app.route('/cron/verificar-misiones')
 def cron_verificar_misiones():
