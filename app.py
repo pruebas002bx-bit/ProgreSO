@@ -18,6 +18,13 @@ app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'una-clave-secreta
 # Usamos una variable de entorno para la URL de Aiven (PostgreSQL o MySQL)
 # Como fallback, usamos una base de datos local sqlite para desarrollo.
 AIVEN_DB_URI = os.environ.get('AIVEN_DATABASE_URI_PROGRESO')
+
+# --- AÑADIR ESTAS LÍNEAS ---
+# Corrección para el dialecto de SQLAlchemy en producción (Render/Aiven)
+if AIVEN_DB_URI and AIVEN_DB_URI.startswith("postgres://"):
+    AIVEN_DB_URI = AIVEN_DB_URI.replace("postgres://", "postgresql+psycopg2://", 1)
+# --- FIN DE LA CORRECCIÓN ---
+
 app.config['SQLALCHEMY_DATABASE_URI'] = AIVEN_DB_URI or 'sqlite:///progreso.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -346,3 +353,12 @@ def init_db_command():
     
     print("Base de datos inicializada y poblada.")
 
+# --- Ejecución de la App ---
+# El bloque if __name__ == '__main__': se elimina.
+# El servidor de producción (Gunicorn) llamará al objeto 'app' directamente.
+# Para desarrollo local, ahora se debe usar:
+# 1. export FLASK_APP=app.py
+# 2. export FLASK_DEBUG=1
+# 3. flask init-db (solo la primera vez)
+# 4. flask run
+# --- FIN DEL REEMPLAZO ---
