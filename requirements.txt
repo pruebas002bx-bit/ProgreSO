@@ -6,3 +6,4 @@ Werkzeug
 gunicorn
 psycopg2-binary
 click
+email-validator
