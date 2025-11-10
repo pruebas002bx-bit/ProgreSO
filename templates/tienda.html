@@ -2,39 +2,39 @@
 
 {% block content %}
 <!-- Monedas del Usuario -->
-<div class="bg-gray-800 p-6 rounded-lg shadow-lg mb-8 flex justify-between items-center">
-    <h3 class="text-xl font-semibold">Mi Billetera</h3>
+<div class="bg-white p-6 rounded-lg shadow-sm mb-8 flex justify-between items-center border border-gray-200">
+    <h3 class="text-xl font-semibold text-gray-900">Mi Billetera</h3>
     <div class="flex items-center space-x-2">
-        <span class="text-3xl font-bold text-yellow-400">{{ monedas_usuario }}</span>
-        <svg class="h-8 w-8 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2zM12 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2zm0-10c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2z" /></svg>
+        <span class="text-3xl font-bold text-yellow-700">{{ monedas_usuario }}</span> <!-- Color ajustado -->
+        <svg class="h-8 w-8 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45.22-2.003.659Z" /></svg>
     </div>
 </div>
 
 <!-- Items de la Tienda -->
-<h2 class="text-2xl font-semibold text-gray-300 mb-6">Recompensas Disponibles</h2>
+<h2 class="text-2xl font-semibold text-gray-900 mb-6">Recompensas Disponibles</h2>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for item in tienda %}
-    <div class="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col justify-between">
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex flex-col justify-between">
         <div>
-            <p class="text-lg font-bold text-white">{{ item.nombre }}</p>
-            <p class="text-2xl font-bold text-yellow-400 mt-2">{{ item.costo }} Monedas</p>
+            <p class="text-lg font-bold text-gray-900">{{ item.nombre }}</p>
+            <p class="text-2xl font-bold text-yellow-700 mt-2">{{ item.costo }} Monedas</p> <!-- Color ajustado -->
         </div>
         <!-- Lógica de compra -->
         {% if monedas_usuario >= item.costo %}
         <form action="#" method="POST" class="mt-4"> <!-- TODO: Crear ruta /comprar_item -->
             <input type="hidden" name="item_id" value="{{ item.id }}">
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg">
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">
                 Comprar
             </button>
         </form>
         {% else %}
-        <button type="button" class="w-full bg-gray-700 text-gray-500 font-bold py-3 px-4 rounded-lg mt-4 cursor-not-allowed" disabled>
+        <button type="button" class="w-full bg-gray-200 text-gray-400 font-bold py-3 px-4 rounded-lg mt-4 cursor-not-allowed" disabled>
             Insuficiente
         </button>
         {% endif %}
     </div>
     {% else %}
-    <p class="text-gray-400 col-span-full text-center">La tienda está vacía por ahora.</p>
+    <p class="text-gray-600 col-span-full text-center">La tienda está vacía por ahora.</p>
     {% endfor %}
 </div>
 {% endblock %}

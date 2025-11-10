@@ -2,40 +2,40 @@
 
 {% block content %}
 <!-- Saludo -->
-<h2 class="text-2xl font-semibold text-gray-300 mb-6">¡Bienvenido de nuevo, {{ stats.username }}!</h2>
+<h2 class="text-2xl font-semibold text-gray-700 mb-6">¡Bienvenido de nuevo, {{ stats.username }}!</h2>
 
 <!-- Grid de Estadísticas Principales -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     <!-- Nivel -->
-    <div class="bg-gray-800 p-6 rounded-lg shadow-lg flex items-center space-x-4">
-        <div class="bg-green-500 p-3 rounded-full">
-            <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
+    <div class="bg-white p-6 rounded-lg shadow-sm flex items-center space-x-4 border border-gray-200">
+        <div class="bg-green-100 p-3 rounded-full">
+            <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
         </div>
         <div>
-            <p class="text-sm text-gray-400">Nivel</p>
-            <p class="text-3xl font-bold text-white">{{ stats.nivel }}</p>
+            <p class="text-sm text-gray-600">Nivel</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats.nivel }}</p>
         </div>
     </div>
     
     <!-- Monedas -->
-    <div class="bg-gray-800 p-6 rounded-lg shadow-lg flex items-center space-x-4">
-        <div class="bg-yellow-500 p-3 rounded-full">
-            <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2zM12 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2zm0-10c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2z" /></svg>
+    <div class="bg-white p-6 rounded-lg shadow-sm flex items-center space-x-4 border border-gray-200">
+        <div class="bg-yellow-100 p-3 rounded-full">
+            <svg class="h-6 w-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45.22-2.003.659Z" /></svg>
         </div>
         <div>
-            <p class="text-sm text-gray-400">Monedas</p>
-            <p class="text-3xl font-bold text-white">{{ stats.monedas }}</p>
+            <p class="text-sm text-gray-600">Monedas</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats.monedas }}</p>
         </div>
     </div>
 
     <!-- XP (Experiencia) -->
-    <div class="bg-gray-800 p-6 rounded-lg shadow-lg col-span-1 md:col-span-3">
+    <div class="bg-white p-6 rounded-lg shadow-sm col-span-1 md:col-span-3 border border-gray-200">
         <div class="flex justify-between items-center mb-2">
-            <p class="text-sm text-gray-400">Experiencia (XP)</p>
-            <p class="text-sm font-medium text-indigo-400">{{ stats.xp_actual }} / {{ stats.xp_siguiente_nivel }} XP</p>
+            <p class="text-sm text-gray-600">Experiencia (XP)</p>
+            <p class="text-sm font-medium text-blue-600">{{ stats.xp_actual }} / {{ stats.xp_siguiente_nivel }} XP</p>
         </div>
-        <div class="w-full bg-gray-700 rounded-full h-3">
-            <div class="bg-indigo-500 h-3 rounded-full" style="width: {{ xp_percent }}%;"></div>
+        <div class="w-full bg-gray-200 rounded-full h-3">
+            <div class="bg-blue-600 h-3 rounded-full" style="width: {{ xp_percent }}%;"></div>
         </div>
     </div>
 </div>
@@ -44,52 +44,52 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     
     <!-- Misiones Urgentes -->
-    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h3 class="text-xl font-semibold mb-4">Misiones Urgentes</h3>
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <h3 class="text-xl font-semibold mb-4 text-gray-900">Misiones Urgentes</h3>
         {% if misiones %}
             <ul class="space-y-3">
                 {% for mision in misiones %}
-                <li class="bg-gray-700 p-4 rounded-lg flex justify-between items-center">
+                <li class="bg-gray-50 border border-gray-200 p-4 rounded-lg flex justify-between items-center">
                     <div>
-                        <p class="font-medium text-white">{{ mision.titulo }}</p>
-                        <p class="text-sm text-gray-400">+{{ mision.recompensa_xp }} XP / +{{ mision.recompensa_monedas }} Monedas</p>
+                        <p class="font-medium text-gray-900">{{ mision.titulo }}</p>
+                        <p class="text-sm text-gray-600">+{{ mision.recompensa_xp }} XP / +{{ mision.recompensa_monedas }} Monedas</p>
                     </div>
-                    <a href="{{ url_for('misiones') }}" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium">Ver</a>
+                    <a href="{{ url_for('misiones') }}" class="text-blue-600 hover:text-blue-500 text-sm font-medium">Ver</a>
                 </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p class="text-gray-400">No tienes misiones activas. ¡Crea una!</p>
+            <p class="text-gray-600">No tienes misiones activas. ¡Crea una!</p>
         {% endif %}
-        <a href="{{ url_for('misiones') }}" class="mt-4 inline-block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg">
+        <a href="{{ url_for('misiones') }}" class="mt-4 inline-block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg">
             Ver Todas las Misiones
         </a>
     </div>
 
     <!-- Hábitos Diarios -->
-    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h3 class="text-xl font-semibold mb-4">Hábitos Diarios</h3>
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <h3 class="text-xl font-semibold mb-4 text-gray-900">Hábitos Diarios</h3>
         {% if habitos %}
             <ul class="space-y-3">
                 {% for habito in habitos %}
-                <li class="bg-gray-700 p-4 rounded-lg flex justify-between items-center">
+                <li class="bg-gray-50 border border-gray-200 p-4 rounded-lg flex justify-between items-center">
                     <div>
-                        <p class="font-medium text-white">{{ habito.titulo }}</p>
-                        <p class="text-sm text-yellow-400">Racha: {{ habito.racha }} días</p>
+                        <p class="font-medium text-gray-900">{{ habito.titulo }}</p>
+                        <p class="text-sm text-yellow-700">Racha: {{ habito.racha }} días</p>
                     </div>
                     <!-- Formulario para completar -->
                     <form action="{{ url_for('completar_habito', habito_id=habito.id) }}" method="POST">
                         <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold p-2 rounded-full h-10 w-10 flex items-center justify-center">
-                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
                         </button>
                     </form>
                 </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p class="text-gray-400">No tienes hábitos definidos. ¡Empieza uno!</p>
+            <p class="text-gray-600">No tienes hábitos definidos. ¡Empieza uno!</p>
         {% endif %}
-        <a href="{{ url_for('habitos') }}" class="mt-4 inline-block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg">
+        <a href="{{ url_for('habitos') }}" class="mt-4 inline-block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg">
             Gestionar Hábitos
         </a>
     </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-gray-900">
+<html lang="es" class="h-full bg-gray-100"> <!-- Fondo gris claro -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,75 +11,92 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Configuración de Tailwind para la paleta de colores Azul
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': {
+                            '50': '#eff6ff', '100': '#dbeafe', '200': '#bfdbfe', '300': '#93c5fd',
+                            '400': '#60a5fa', '500': '#3b82f6', '600': '#2563eb', '700': '#1d4ed8',
+                            '800': '#1e40af', '900': '#1e3a8a', '950': '#172554',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         body { font-family: 'Inter', sans-serif; }
-        /* Scrollbar personalizada */
+        /* Scrollbar personalizada (Tema Claro) */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1f2937; }
-        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; } /* gris claro */
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; } /* gris medio */
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; } /* gris oscuro */
     </style>
 </head>
-<body class="h-full text-gray-200">
+<body class="h-full text-gray-900"> <!-- Texto oscuro por defecto -->
     <div class="flex h-screen overflow-hidden">
         
-        <!-- Barra Lateral (Sidebar) -->
-        <aside class="w-64 flex-shrink-0 bg-gray-800 p-4 flex flex-col justify-between">
+        <!-- Barra Lateral (Sidebar) - Tema Claro -->
+        <aside class="w-64 flex-shrink-0 bg-white p-4 flex flex-col justify-between border-r border-gray-200">
             <div>
                 <!-- Logo y Título -->
-                <a href="{{ url_for('index') }}" class="flex items-center space-x-2 text-white p-2 rounded-lg hover:bg-gray-700">
-                    <svg class="h-8 w-8 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                <a href="{{ url_for('index') }}" class="flex items-center space-x-3 text-gray-900 p-2 rounded-lg hover:bg-gray-100">
+                    <!-- Logo SVG (Gráfico Ascendente) -->
+                    <svg class="h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.518 5.518m5.518-5.518v5.518m0-5.518H16.5a11.95 11.95 0 0 0-5.814 5.518l-4.306-4.306L2.25 18Z" />
                     </svg>
                     <span class="text-2xl font-bold">ProgreSO</span>
                 </a>
                 
                 <!-- Navegación Principal -->
                 <nav class="mt-8 space-y-2">
-                    <a href="{{ url_for('index') }}" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700 {% if request.endpoint == 'index' %}bg-gray-900 text-indigo-400{% endif %}">
-                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                    <a href="{{ url_for('index') }}" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100 {% if request.endpoint == 'index' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25A2.25 2.25 0 0 1 13.5 8.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" /></svg>
                         <span>Panel Central</span>
                     </a>
-                    <a href="{{ url_for('misiones') }}" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700 {% if request.endpoint == 'misiones' %}bg-gray-900 text-indigo-400{% endif %}">
-                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0h6"/></svg>
+                    <a href="{{ url_for('misiones') }}" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100 {% if request.endpoint == 'misiones' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0h6"/></svg>
                         <span>Misiones</span>
                     </a>
-                    <a href="{{ url_for('habitos') }}" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700 {% if request.endpoint == 'habitos' %}bg-gray-900 text-indigo-400{% endif %}">
-                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <a href="{{ url_for('habitos') }}" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100 {% if request.endpoint == 'habitos' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
                         <span>Hábitos</span>
                     </a>
-                    <a href="{{ url_for('tienda') }}" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700 {% if request.endpoint == 'tienda' %}bg-gray-900 text-indigo-400{% endif %}">
-                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    <a href="{{ url_for('tienda') }}" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100 {% if request.endpoint == 'tienda' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm11.25 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" /></svg>
                         <span>Tienda</span>
                     </a>
-                    <a href="{{ url_for('feed') }}" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700 {% if request.endpoint == 'feed' %}bg-gray-900 text-indigo-400{% endif %}">
-                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    <a href="{{ url_for('feed') }}" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100 {% if request.endpoint == 'feed' %}bg-blue-50 text-blue-600 font-semibold{% endif %}">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666l-.014.123m-5.86-.031a11.959 11.959 0 0 1-2.599 0m5.858 0Abc.m0 0a11.959 11.959 0 0 0-2.599 0m2.599 0A11.959 11.959 0 0 0 9 18.73m0 0a11.959 11.959 0 0 0-2.599 0m2.599 0A11.959 11.959 0 0 0 3.741 18.73m0 0a9.094 9.094 0 0 0-3.741-.479 3 3 0 0 0 4.682 2.72M3.741 18.253v.031c0 .225.012.447.037.666l.014.123m-5.86-.031a11.959 11.959 0 0 1 2.599 0m-5.858 0a11.959 11.959 0 0 0 2.599 0m-2.599 0A11.959 11.959 0 0 0 9 18.73m0 0a11.959 11.959 0 0 0 2.599 0m-2.599 0A11.959 11.959 0 0 0 15 18.73m0 0a11.959 11.959 0 0 0 2.599 0M9 12.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm12 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
                         <span>Feed Social</span>
                     </a>
                 </nav>
             </div>
             
             <!-- Perfil de Usuario y Logout -->
-            <div class="border-t border-gray-700 pt-4">
-                <a href="{{ url_for('perfil') }}" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700 {% if request.endpoint == 'perfil' %}bg-gray-900{% endif %}">
-                    <svg class="h-8 w-8 rounded-full bg-indigo-600 p-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                    <span class="font-medium">{{ current_user.username }}</span>
+            <div class="border-t border-gray-200 pt-4">
+                <a href="{{ url_for('perfil') }}" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 {% if request.endpoint == 'perfil' %}bg-gray-100{% endif %}">
+                    <svg class="h-8 w-8 rounded-full bg-blue-600 p-1 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+                    <span class="font-medium text-gray-800">{{ current_user.username }}</span>
                 </a>
-                <a href="{{ url_for('logout') }}" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-700 text-red-400 mt-2">
-                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                <a href="{{ url_for('logout') }}" class="flex items-center space-x-3 p-2 rounded-lg text-red-600 hover:bg-red-50 mt-2">
+                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg>
                     <span>Cerrar Sesión</span>
                 </a>
             </div>
         </aside>
         
         <!-- Área de Contenido Principal -->
-        <main class="flex-1 overflow-y-auto bg-gray-900 p-8">
-            <!-- Mensajes Flash (Notificaciones) -->
+        <main class="flex-1 overflow-y-auto bg-gray-100 p-8">
+            <!-- Mensajes Flash (Notificaciones) - Modernizado -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    <div class="absolute top-0 right-0 p-4 w-full max-w-sm">
+                    <div class="fixed top-5 right-5 p-4 w-full max-w-sm z-50">
                     {% for category, message in messages %}
-                        <div class="p-4 rounded-lg shadow-lg mb-2
+                        <div class="p-4 rounded-lg shadow-xl mb-2
                             {% if category == 'danger' %} bg-red-600 text-white
                             {% elif category == 'success' %} bg-green-600 text-white
                             {% else %} bg-blue-600 text-white
@@ -92,7 +109,7 @@
             {% endwith %}
 
             <!-- Título de la Página -->
-            <h1 class="text-4xl font-bold text-white mb-6">{{ title }}</h1>
+            <h1 class="text-4xl font-bold text-gray-900 mb-6">{{ title }}</h1>
 
             <!-- Contenido Específico de la Página -->
             <div class="max-w-7xl mx-auto">
